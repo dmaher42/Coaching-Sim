@@ -115,14 +115,16 @@ button {
   position: relative;
   width: 100%;
   aspect-ratio: 0.78;
-  border-radius: 34px;
   overflow: hidden;
   background:
-    linear-gradient(90deg, rgba(255,255,255,0.04) 0 0),
     radial-gradient(circle at 50% 50%, rgba(255,255,255,0.06), transparent 34%),
     linear-gradient(180deg, #279236 0%, #157329 55%, #0f6524 100%);
-  border: 2px solid rgba(255,255,255,0.12);
-  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.04);
+  border: none;
+  clip-path: ellipse(46.5% 48.5% at 50% 50%);
+  -webkit-clip-path: ellipse(46.5% 48.5% at 50% 50%);
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,0.04),
+    0 18px 36px rgba(0,0,0,0.26);
 }
 
 .field::before {
@@ -136,6 +138,16 @@ button {
     rgba(255,255,255,0.015) 16.66%,
     rgba(255,255,255,0.015) 33.33%
   );
+  pointer-events: none;
+}
+
+.field::after {
+  content: "";
+  position: absolute;
+  inset: 0.8%;
+  border: 2px solid rgba(255,255,255,0.08);
+  clip-path: ellipse(46.2% 48.1% at 50% 50%);
+  -webkit-clip-path: ellipse(46.2% 48.1% at 50% 50%);
   pointer-events: none;
 }
 
@@ -164,16 +176,16 @@ button {
 
 .lane-line {
   position: absolute;
-  top: 0;
-  bottom: 0;
+  top: 4%;
+  bottom: 4%;
   width: 1px;
   background: rgba(255,255,255,0.1);
 }
 
 .centre-line {
   position: absolute;
-  top: 3%;
-  bottom: 3%;
+  top: 4%;
+  bottom: 4%;
   left: 50%;
   width: 2px;
   transform: translateX(-50%);
