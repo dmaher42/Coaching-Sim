@@ -119,16 +119,14 @@ button {
   background:
     repeating-linear-gradient(
       180deg,
-      #8fd06e 0%,
-      #8fd06e 7%,
-      #7ec65f 7%,
-      #7ec65f 14%
-    ),
-    radial-gradient(circle at 50% 50%, rgba(255,255,255,0.06), transparent 34%),
-    linear-gradient(180deg, #94d76b 0%, #76bf55 100%);
+      #9ad774 0%,
+      #9ad774 7%,
+      #82cb60 7%,
+      #82cb60 14%
+    );
   border: none;
-  clip-path: ellipse(39.8% 49.2% at 50% 50%);
-  -webkit-clip-path: ellipse(39.8% 49.2% at 50% 50%);
+  clip-path: ellipse(36.8% 49.2% at 50% 50%);
+  -webkit-clip-path: ellipse(36.8% 49.2% at 50% 50%);
   box-shadow:
     inset 0 0 0 1px rgba(255,255,255,0.04),
     0 18px 36px rgba(0,0,0,0.26);
@@ -151,10 +149,10 @@ button {
 .field::after {
   content: "";
   position: absolute;
-  inset: 0.6%;
-  border: 2px solid rgba(255,255,255,0.08);
-  clip-path: ellipse(39.4% 48.8% at 50% 50%);
-  -webkit-clip-path: ellipse(39.4% 48.8% at 50% 50%);
+  inset: 0.8%;
+  border: 2px solid rgba(0,0,0,0.35);
+  clip-path: ellipse(36.2% 48.6% at 50% 50%);
+  -webkit-clip-path: ellipse(36.2% 48.6% at 50% 50%);
   pointer-events: none;
 }
 
@@ -165,9 +163,9 @@ button {
 
 .boundary-oval {
   position: absolute;
-  inset: 3.3% 10%;
-  border: 3px solid rgba(0,0,0,0.35);
-  border-radius: 50% / 18%;
+  inset: 2.8% 13.5%;
+  border: 3px solid rgba(0,0,0,0.38);
+  border-radius: 50% / 16%;
 }
 
 .wing-guide {
@@ -175,7 +173,7 @@ button {
   top: 8%;
   bottom: 8%;
   width: 1px;
-  background: rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.07);
 }
 
 .wing-guide.left { left: 17%; }
@@ -186,13 +184,13 @@ button {
   top: 4%;
   bottom: 4%;
   width: 1px;
-  background: rgba(255,255,255,0.09);
+  background: rgba(255,255,255,0.08);
 }
 
 .centre-line {
   position: absolute;
-  top: 3.5%;
-  bottom: 3.5%;
+  top: 2.6%;
+  bottom: 2.6%;
   left: 50%;
   width: 2px;
   transform: translateX(-50%);
@@ -205,64 +203,72 @@ button {
   right: 29%;
   top: 37%;
   bottom: 37%;
-  border: 2px solid rgba(0,0,0,0.35);
+  border: 2px solid rgba(0,0,0,0.36);
 }
 
 .centre-circle {
   position: absolute;
-  width: 24%;
+  width: 11.5%;
   aspect-ratio: 1;
   border-radius: 50%;
-  border: 3px solid rgba(255,255,255,0.18);
-  left: 38%;
-  top: 41.3%;
+  border: 3px solid rgba(0,0,0,0.48);
+  left: 44.25%;
+  top: 44.25%;
+}
+
+.centre-circle::after {
+  content: "";
+  position: absolute;
+  inset: 34%;
+  border: 2px solid rgba(0,0,0,0.48);
+  border-radius: 50%;
 }
 
 .arc {
   position: absolute;
-  left: 18.5%;
-  right: 18.5%;
-  height: 10.5%;
+  left: 22%;
+  right: 22%;
+  height: 9.5%;
 }
 
 .arc.top {
-  top: 12.5%;
-  border-bottom: 3px solid rgba(0,0,0,0.5);
+  top: 12.7%;
+  border-bottom: 3px solid rgba(0,0,0,0.55);
   border-bottom-left-radius: 999px;
   border-bottom-right-radius: 999px;
 }
 
 .arc.bottom {
-  bottom: 12.5%;
-  border-top: 3px solid rgba(0,0,0,0.5);
+  bottom: 12.7%;
+  border-top: 3px solid rgba(0,0,0,0.55);
   border-top-left-radius: 999px;
   border-top-right-radius: 999px;
 }
 
 .goal-square {
   position: absolute;
-  left: 41.5%;
-  right: 41.5%;
-  height: 6.5%;
+  left: 44.2%;
+  right: 44.2%;
+  height: 5.9%;
   border-left: 2px solid rgba(0,0,0,0.45);
   border-right: 2px solid rgba(0,0,0,0.45);
 }
 
 .goal-square.top {
-  top: 3.1%;
+  top: 2.4%;
   border-bottom: 2px solid rgba(0,0,0,0.45);
 }
 
 .goal-square.bottom {
-  bottom: 3.1%;
+  bottom: 2.4%;
   border-top: 2px solid rgba(0,0,0,0.45);
 }
 
 .goal-posts {
   position: absolute;
   left: 50%;
-  width: 12%;
-  height: 24px;
+  width: 14%;
+  height: 28px;
   transform: translateX(-50%);
 }
 
@@ -273,15 +279,15 @@ button {
   top: 0;
   bottom: 0;
   width: 2px;
-  background: rgba(0,0,0,0.7);
-  box-shadow: -21px 0 0 rgba(0,0,0,0.5), 21px 0 0 rgba(0,0,0,0.5);
+  background: rgba(0,0,0,0.72);
+  box-shadow: -20px 0 0 rgba(0,0,0,0.5), 20px 0 0 rgba(0,0,0,0.5);
 }
 
-.goal-posts::before { left: calc(50% - 7px); }
-.goal-posts::after { right: calc(50% - 7px); }
+.goal-posts::before { left: calc(50% - 6px); }
+.goal-posts::after { right: calc(50% - 6px); }
 
-.goal-posts.top { top: 1%; }
-.goal-posts.bottom { bottom: 1%; }
+.goal-posts.top { top: 0.2%; }
+.goal-posts.bottom { bottom: 0.2%; }
 
 .player-chip {
   position: absolute;
