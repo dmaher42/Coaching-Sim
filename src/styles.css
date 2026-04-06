@@ -120,8 +120,8 @@ button {
     radial-gradient(circle at 50% 50%, rgba(255,255,255,0.06), transparent 34%),
     linear-gradient(180deg, #279236 0%, #157329 55%, #0f6524 100%);
   border: none;
-  clip-path: ellipse(46.5% 48.5% at 50% 50%);
-  -webkit-clip-path: ellipse(46.5% 48.5% at 50% 50%);
+  clip-path: ellipse(45% 48.8% at 50% 50%);
+  -webkit-clip-path: ellipse(45% 48.8% at 50% 50%);
   box-shadow:
     inset 0 0 0 1px rgba(255,255,255,0.04),
     0 18px 36px rgba(0,0,0,0.26);
@@ -144,10 +144,10 @@ button {
 .field::after {
   content: "";
   position: absolute;
-  inset: 0.8%;
+  inset: 0.6%;
   border: 2px solid rgba(255,255,255,0.08);
-  clip-path: ellipse(46.2% 48.1% at 50% 50%);
-  -webkit-clip-path: ellipse(46.2% 48.1% at 50% 50%);
+  clip-path: ellipse(44.7% 48.4% at 50% 50%);
+  -webkit-clip-path: ellipse(44.7% 48.4% at 50% 50%);
   pointer-events: none;
 }
 
@@ -158,9 +158,9 @@ button {
 
 .boundary-oval {
   position: absolute;
-  inset: 4% 4.5%;
-  border: 3px solid rgba(255,255,255,0.2);
-  border-radius: 48% / 18%;
+  inset: 4% 5.2%;
+  border: 3px solid rgba(255,255,255,0.22);
+  border-radius: 50% / 18%;
 }
 
 .wing-guide {
@@ -194,11 +194,11 @@ button {
 
 .centre-square {
   position: absolute;
-  left: 33%;
-  right: 33%;
-  top: 41%;
-  bottom: 41%;
-  border: 2px solid rgba(255,255,255,0.2);
+  left: 31.5%;
+  right: 31.5%;
+  top: 39%;
+  bottom: 39%;
+  border: 2px solid rgba(255,255,255,0.22);
 }
 
 .centre-circle {
@@ -217,15 +217,20 @@ button {
   right: 20%;
   height: 16%;
   border: 3px solid rgba(255,255,255,0.18);
-  border-bottom: none;
   border-top-left-radius: 999px;
   border-top-right-radius: 999px;
+  border-bottom-left-radius: 999px;
+  border-bottom-right-radius: 999px;
 }
 
-.arc.top { top: 7%; }
+.arc.top {
+  top: 7%;
+  border-top: none;
+}
+
 .arc.bottom {
   bottom: 7%;
-  transform: rotate(180deg);
+  border-bottom: none;
 }
 
 .goal-square {
