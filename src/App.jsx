@@ -194,75 +194,42 @@ function buildFeedback(players, ball, selectedScenario) {
   const feedback = [];
 
   if (nearbyOptions.length < 2) {
-    feedback.push({
-      level: 'warn',
-      text: 'There are not enough short support options near the ball. Add more “run to receive” around the kicker so he is not trapped.',
-    });
+    feedback.push({ level: 'warn', text: 'There are not enough short support options near the ball. Add more “run to receive” around the kicker so he is not trapped.' });
   } else {
-    feedback.push({
-      level: 'good',
-      text: `You have ${nearbyOptions.length} short support options near the ball, which supports a safer release and handball chain.`,
-    });
+    feedback.push({ level: 'good', text: `You have ${nearbyOptions.length} short support options near the ball, which supports a safer release and handball chain.` });
   }
 
   if (aheadOptions.length < 4) {
-    feedback.push({
-      level: 'warn',
-      text: 'There are not enough players ahead of the ball. Your shape may become too flat and invite pressure back on the kicker.',
-    });
+    feedback.push({ level: 'warn', text: 'There are not enough players ahead of the ball. Your shape may become too flat and invite pressure back on the kicker.' });
   }
 
   if (corridorCount < 3) {
-    feedback.push({
-      level: 'warn',
-      text: 'The corridor looks underused. Even if you exit boundary-side first, you still need inside support to keep “face forward immediately” alive.',
-    });
+    feedback.push({ level: 'warn', text: 'The corridor looks underused. Even if you exit boundary-side first, you still need inside support to keep “face forward immediately” alive.' });
   } else {
-    feedback.push({
-      level: 'good',
-      text: 'You still have corridor presence, which keeps the next kick or handball option open if the boundary side gets squeezed.',
-    });
+    feedback.push({ level: 'good', text: 'You still have corridor presence, which keeps the next kick or handball option open if the boundary side gets squeezed.' });
   }
 
   if (boundarySide && oppositeSideCount < 2) {
-    feedback.push({
-      level: 'warn',
-      text: 'The opposite side is too empty. If you want “in one side, out the other”, someone must already be working to the far side before the trap arrives.',
-    });
+    feedback.push({ level: 'warn', text: 'The opposite side is too empty. If you want “in one side, out the other”, someone must already be working to the far side before the trap arrives.' });
   }
 
   const targetSpacing = forwardTargets.length === 2 ? Math.abs(forwardTargets[0].y - forwardTargets[1].y) : 0;
   if (targetSpacing < 8) {
-    feedback.push({
-      level: 'warn',
-      text: 'F2 and F4 are too similar in height on the ground. Stagger them so one is a true deeper target and one is the link option one kick higher.',
-    });
+    feedback.push({ level: 'warn', text: 'F2 and F4 are too similar in height on the ground. Stagger them so one is a true deeper target and one is the link option one kick higher.' });
   } else {
-    feedback.push({
-      level: 'good',
-      text: 'F2 and F4 are staggered well. That gives you both a deeper contest and a link target higher up the ground.',
-    });
+    feedback.push({ level: 'good', text: 'F2 and F4 are staggered well. That gives you both a deeper contest and a link target higher up the ground.' });
   }
 
   const runnerSpread = runners.filter((p) => p.y < ball.y && Math.abs(p.x - ball.x) > 8).length;
   if (runnerSpread < 2) {
-    feedback.push({
-      level: 'warn',
-      text: 'Your runners are too close to the line of the ball. Stretch the ground more so the next layer can support and the defence has to make a decision.',
-    });
+    feedback.push({ level: 'warn', text: 'Your runners are too close to the line of the ball. Stretch the ground more so the next layer can support and the defence has to make a decision.' });
   } else {
-    feedback.push({
-      level: 'good',
-      text: 'Your runners are stretching the ground. That should help open a lane for the second and third possession in the chain.',
-    });
+    feedback.push({ level: 'good', text: 'Your runners are stretching the ground. That should help open a lane for the second and third possession in the chain.' });
   }
 
   const pressureOpp = opp.filter((p) => distance(p, ball) < 14).length;
   if (pressureOpp >= 3) {
-    feedback.push({
-      level: 'warn',
-      text: 'There is heavy opposition pressure around the ball. If this is realistic pressure, the next action probably needs to be safer and quicker.',
-    });
+    feedback.push({ level: 'warn', text: 'There is heavy opposition pressure around the ball. If this is realistic pressure, the next action probably needs to be safer and quicker.' });
   }
 
   if (selectedScenario === 'boundaryChain') {
@@ -270,21 +237,12 @@ function buildFeedback(players, ball, selectedScenario) {
     const crumber = byId.F1;
     const insideMid = byId.M1;
     if (hfLead && crumber && crumber.y > hfLead.y + 8) {
-      feedback.push({
-        level: 'good',
-        text: 'Your crumbing forward is staying goal-side of the lead, which suits a spill or front-and-square outcome.',
-      });
+      feedback.push({ level: 'good', text: 'Your crumbing forward is staying goal-side of the lead, which suits a spill or front-and-square outcome.' });
     } else {
-      feedback.push({
-        level: 'warn',
-        text: 'If the half-forward leads at the boundary, your crumber should stay positioned for the spill rather than joining the same lead lane.',
-      });
+      feedback.push({ level: 'warn', text: 'If the half-forward leads at the boundary, your crumber should stay positioned for the spill rather than joining the same lead lane.' });
     }
     if (insideMid && insideMid.x > 30) {
-      feedback.push({
-        level: 'good',
-        text: 'Your inside mid is protecting the next inside lane instead of getting dragged right to the boundary contest.',
-      });
+      feedback.push({ level: 'good', text: 'Your inside mid is protecting the next inside lane instead of getting dragged right to the boundary contest.' });
     }
   }
 
@@ -318,46 +276,32 @@ export default function App() {
   const [ball, setBall] = useState(centreBounceBall);
   const [selectedId, setSelectedId] = useState('M2');
   const [scenario, setScenario] = useState('centreBounce');
-  const [customNote, setCustomNote] = useState(
-    'Use this board to drag players into shape. Start with one kick, then talk through the next two movements.'
-  );
+  const [customNote, setCustomNote] = useState('Use this board to drag players into shape. Start with one kick, then talk through the next two movements.');
 
   const selectedPlayer = players.find((p) => p.id === selectedId) || null;
-
-  const feedback = useMemo(
-    () => buildFeedback(players, ball, scenario),
-    [players, ball, scenario]
-  );
+  const feedback = useMemo(() => buildFeedback(players, ball, scenario), [players, ball, scenario]);
 
   function updateFromPointer(clientX, clientY, targetId) {
     const rect = fieldRef.current?.getBoundingClientRect();
     if (!rect) return;
     const x = clamp(((clientX - rect.left) / rect.width) * 100, 2, 98);
     const y = clamp((((clientY - rect.top) / rect.height) * FIELD_HEIGHT), 2, FIELD_HEIGHT - 2);
-
     if (targetId === 'ball') {
       setBall({ x, y });
       return;
     }
-
-    setPlayers((current) =>
-      current.map((player) =>
-        player.id === targetId ? { ...player, x, y } : player
-      )
-    );
+    setPlayers((current) => current.map((player) => (player.id === targetId ? { ...player, x, y } : player)));
   }
 
   function startDrag(event, targetId) {
     event.preventDefault();
     setSelectedId(targetId);
     updateFromPointer(event.clientX, event.clientY, targetId);
-
     const move = (moveEvent) => updateFromPointer(moveEvent.clientX, moveEvent.clientY, targetId);
     const end = () => {
       window.removeEventListener('pointermove', move);
       window.removeEventListener('pointerup', end);
     };
-
     window.addEventListener('pointermove', move);
     window.addEventListener('pointerup', end);
   }
@@ -405,15 +349,21 @@ export default function App() {
 
           <div className="field" ref={fieldRef}>
             <div className="field-overlay">
+              <div className="boundary-oval" />
+              <div className="wing-guide left" />
+              <div className="wing-guide right" />
               {[1, 2, 3, 4, 5].map((line) => (
                 <div key={line} className="lane-line" style={{ left: `${(line / 6) * 100}%` }} />
               ))}
+              <div className="centre-line" />
               <div className="centre-square" />
               <div className="centre-circle" />
               <div className="arc top" />
               <div className="arc bottom" />
               <div className="goal-square top" />
               <div className="goal-square bottom" />
+              <div className="goal-posts top" />
+              <div className="goal-posts bottom" />
             </div>
 
             {players.map((player) => (
@@ -435,10 +385,7 @@ export default function App() {
           </div>
 
           <div className="board-footer">
-            <p>
-              Tip: start with the ball carrier, then ask: who is short support, who is next line,
-              who protects the inside, and who stays dangerous ahead of the ball?
-            </p>
+            <p>Tip: start with the ball carrier, then ask: who is short support, who is next line, who protects the inside, and who stays dangerous ahead of the ball?</p>
           </div>
         </section>
 
@@ -449,9 +396,7 @@ export default function App() {
               <>
                 <div className="role-pill">{selectedPlayer.id}</div>
                 <p className="muted">{roleDescriptions[selectedPlayer.id] || 'Role description not set.'}</p>
-                <p className="position-readout">
-                  Lane {getLane(selectedPlayer.x)} · X {Math.round(selectedPlayer.x)} · Y {Math.round(selectedPlayer.y)}
-                </p>
+                <p className="position-readout">Lane {getLane(selectedPlayer.x)} · X {Math.round(selectedPlayer.x)} · Y {Math.round(selectedPlayer.y)}</p>
               </>
             ) : (
               <p className="muted">Select a player chip to inspect their role.</p>
@@ -472,11 +417,7 @@ export default function App() {
 
           <section className="card">
             <h2>Scenario notes</h2>
-            <textarea
-              value={customNote}
-              onChange={(event) => setCustomNote(event.target.value)}
-              placeholder="Write what the play is, what the cue is, and what the next action should be."
-            />
+            <textarea value={customNote} onChange={(event) => setCustomNote(event.target.value)} placeholder="Write what the play is, what the cue is, and what the next action should be." />
           </section>
 
           <section className="card">
