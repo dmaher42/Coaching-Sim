@@ -100,14 +100,14 @@ const centreBouncePlayers = [
   { id: 'O14', label: 'O14', team: 'opp', x: 72, y: 24 },
 ];
 
-const ballStart = { x: 50, y: 58 };
+const centreBounceBall = { x: 50, y: 58 };
 
 const presets = {
-  reset: {
+  centreBounce: {
     name: 'Centre bounce start',
     players: centreBouncePlayers,
-    ball: ballStart,
-    notes: 'Centre bounce starting positions. Reset returns everyone to their starting shape around the stoppage.',
+    ball: centreBounceBall,
+    notes: 'Centre bounce starting positions. Use this to set your stoppage structure and first movement patterns.',
   },
   kickoutBoundary: {
     name: 'Kick-out to boundary half-back',
@@ -315,9 +315,9 @@ function PlayerChip({ player, onPointerDown, selected, roleHint }) {
 export default function App() {
   const fieldRef = useRef(null);
   const [players, setPlayers] = useState(centreBouncePlayers);
-  const [ball, setBall] = useState(ballStart);
+  const [ball, setBall] = useState(centreBounceBall);
   const [selectedId, setSelectedId] = useState('M2');
-  const [scenario, setScenario] = useState('reset');
+  const [scenario, setScenario] = useState('centreBounce');
   const [customNote, setCustomNote] = useState(
     'Use this board to drag players into shape. Start with one kick, then talk through the next two movements.'
   );
@@ -371,7 +371,7 @@ export default function App() {
   }
 
   function resetBoard() {
-    applyPreset('reset');
+    applyPreset(scenario);
   }
 
   return (
@@ -382,6 +382,7 @@ export default function App() {
           <p>Drag the players. Move the ball. Test whether your shape still works.</p>
         </div>
         <div className="topbar-actions">
+          <button onClick={() => applyPreset('centreBounce')}>Centre Bounce</button>
           <button onClick={() => applyPreset('kickoutBoundary')}>Kick-out shape</button>
           <button onClick={() => applyPreset('boundaryChain')}>Second-kick shape</button>
           <button onClick={resetBoard}>Reset</button>
