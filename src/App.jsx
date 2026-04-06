@@ -65,14 +65,49 @@ const basePlayers = [
   { id: 'O14', label: 'O14', team: 'opp', x: 68, y: 21 },
 ];
 
-const ballStart = { x: 18, y: 116 };
+const centreBouncePlayers = [
+  { id: 'B1', label: 'B1', team: 'us', x: 20, y: 118 },
+  { id: 'B2', label: 'B2', team: 'us', x: 40, y: 122 },
+  { id: 'B3', label: 'B3', team: 'us', x: 50, y: 116 },
+  { id: 'B4', label: 'B4', team: 'us', x: 60, y: 122 },
+  { id: 'B5', label: 'B5', team: 'us', x: 35, y: 102 },
+  { id: 'B6', label: 'B6', team: 'us', x: 65, y: 102 },
+  { id: 'W1', label: 'W1', team: 'us', x: 16, y: 70 },
+  { id: 'W2', label: 'W2', team: 'us', x: 84, y: 70 },
+  { id: 'M1', label: 'M1', team: 'us', x: 44, y: 72 },
+  { id: 'M2', label: 'M2', team: 'us', x: 50, y: 66 },
+  { id: 'M3', label: 'M3', team: 'us', x: 56, y: 72 },
+  { id: 'R', label: 'R', team: 'us', x: 50, y: 58 },
+  { id: 'F1', label: 'F1', team: 'us', x: 24, y: 28 },
+  { id: 'F2', label: 'F2', team: 'us', x: 46, y: 18 },
+  { id: 'F3', label: 'F3', team: 'us', x: 76, y: 28 },
+  { id: 'F4', label: 'F4', team: 'us', x: 54, y: 34 },
+  { id: 'F5', label: 'F5', team: 'us', x: 38, y: 46 },
+  { id: 'F6', label: 'F6', team: 'us', x: 62, y: 46 },
+  { id: 'O1', label: 'O1', team: 'opp', x: 22, y: 108 },
+  { id: 'O2', label: 'O2', team: 'opp', x: 40, y: 112 },
+  { id: 'O3', label: 'O3', team: 'opp', x: 50, y: 106 },
+  { id: 'O4', label: 'O4', team: 'opp', x: 60, y: 112 },
+  { id: 'O5', label: 'O5', team: 'opp', x: 38, y: 86 },
+  { id: 'O6', label: 'O6', team: 'opp', x: 62, y: 86 },
+  { id: 'O7', label: 'O7', team: 'opp', x: 18, y: 66 },
+  { id: 'O8', label: 'O8', team: 'opp', x: 34, y: 66 },
+  { id: 'O9', label: 'O9', team: 'opp', x: 50, y: 50 },
+  { id: 'O10', label: 'O10', team: 'opp', x: 66, y: 66 },
+  { id: 'O11', label: 'O11', team: 'opp', x: 82, y: 66 },
+  { id: 'O12', label: 'O12', team: 'opp', x: 28, y: 24 },
+  { id: 'O13', label: 'O13', team: 'opp', x: 50, y: 14 },
+  { id: 'O14', label: 'O14', team: 'opp', x: 72, y: 24 },
+];
+
+const ballStart = { x: 50, y: 58 };
 
 const presets = {
   reset: {
-    name: 'Reset Shape',
-    players: basePlayers,
+    name: 'Centre bounce start',
+    players: centreBouncePlayers,
     ball: ballStart,
-    notes: 'Balanced whole-ground shape. Use this as your neutral starting point.',
+    notes: 'Centre bounce starting positions. Reset returns everyone to their starting shape around the stoppage.',
   },
   kickoutBoundary: {
     name: 'Kick-out to boundary half-back',
@@ -147,7 +182,6 @@ function buildFeedback(players, ball, selectedScenario) {
   const byId = Object.fromEntries(players.map((p) => [p.id, p]));
   const nearbyOptions = us.filter((p) => p.id !== 'B2' && distance(p, ball) < 18);
   const aheadOptions = us.filter((p) => p.y < ball.y - 8);
-  const ballLane = getLane(ball.x);
   const corridorCount = us.filter((p) => [3, 4].includes(getLane(p.x))).length;
   const boundarySide = ball.x < 20 || ball.x > 80;
   const oppositeSideCount = us.filter((p) => {
@@ -280,9 +314,9 @@ function PlayerChip({ player, onPointerDown, selected, roleHint }) {
 
 export default function App() {
   const fieldRef = useRef(null);
-  const [players, setPlayers] = useState(basePlayers);
+  const [players, setPlayers] = useState(centreBouncePlayers);
   const [ball, setBall] = useState(ballStart);
-  const [selectedId, setSelectedId] = useState('B3');
+  const [selectedId, setSelectedId] = useState('M2');
   const [scenario, setScenario] = useState('reset');
   const [customNote, setCustomNote] = useState(
     'Use this board to drag players into shape. Start with one kick, then talk through the next two movements.'
