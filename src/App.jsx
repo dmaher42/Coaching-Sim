@@ -312,6 +312,24 @@ export default function App() {
     removePlayerById(selectedPlayer.id);
   }
 
+  function removeAllPlayers() {
+    if (players.length === 0) return;
+    setUndoStack((current) => [
+      ...current,
+      {
+        type: 'remove-all-players',
+        players: players.map((player) => ({ ...player })),
+        lines: customLines.map((line) => ({ ...line })),
+        previousSelectedId: selectedId,
+      },
+    ]);
+    setPlayers([]);
+    setCustomLines([]);
+    setSelectedId('');
+    setLineStartId(null);
+    setPendingLinePoint(null);
+  }
+
   function undoLastChange() {
     const lastAction = undoStack[undoStack.length - 1];
     if (!lastAction) return;
@@ -329,6 +347,10 @@ export default function App() {
         setCustomLines((current) => [...current, ...lastAction.lines]);
       }
       setSelectedId(lastAction.previousSelectedId || lastAction.player.id);
+    } else if (lastAction.type === 'remove-all-players') {
+      setPlayers(lastAction.players);
+      setCustomLines(lastAction.lines);
+      setSelectedId(lastAction.previousSelectedId || lastAction.players[0]?.id || 'M2');
     }
     setUndoStack((current) => current.slice(0, -1));
   }
@@ -418,6 +440,7 @@ export default function App() {
               <button onClick={() => addPlayer('us')}>Add teammate</button>
               <button onClick={() => addPlayer('opp')}>Add opponent</button>
               <button onClick={removeSelectedPlayer} disabled={!selectedPlayer}>Remove selected</button>
+              <button onClick={removeAllPlayers} disabled={players.length === 0}>Remove all players</button>
               <button onClick={undoLastChange} disabled={undoStack.length === 0}>Undo last change</button>
             </div>
           </section>
