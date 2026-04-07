@@ -7,6 +7,7 @@ Progress:
 - Added a "Remove all players" button in the player tools panel.
 - Added a Pages compatibility copy so cached HTML can still load the updated bundle filename.
 - Tightened the board layout so the side panel can scroll independently and the oval stays closer to the reference board size.
+- Removed the X/Y coordinate readout from the selected-role card.
 
 Notes:
 - Resetting or changing presets clears the undo stack.

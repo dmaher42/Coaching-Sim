@@ -471,8 +471,8 @@ export default function App() {
 
           <section className="card">
             <h2>Selected role</h2>
-            {selectedPlayer ? <><div className="role-pill">{selectedPlayer.label}</div><p className="muted">{roleDescriptions[selectedPlayer.label] || roleDescriptions[selectedPlayer.id] || 'Custom player.'}</p><p className="position-readout">Lane {getLane(selectedPlayer.x)} · X {Math.round(selectedPlayer.x)} · Y {Math.round(selectedPlayer.y)}</p></> : <p className="muted">Select a player chip to inspect their role.</p>}
-          </section>
+            {selectedPlayer ? <><div className="role-pill">{selectedPlayer.label}</div><p className="muted">{roleDescriptions[selectedPlayer.label] || roleDescriptions[selectedPlayer.id] || 'Custom player.'}</p><p className="position-readout">Lane {getLane(selectedPlayer.x)}</p></> : <p className="muted">Select a player chip to inspect their role.</p>}
+            </section>
 
           <section className="card">
             <h2>Coach feedback</h2>
