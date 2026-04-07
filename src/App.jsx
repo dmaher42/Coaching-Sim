@@ -131,6 +131,16 @@ function clamp(value, min, max) { return Math.max(min, Math.min(max, value)); }
 function distance(a, b) { return Math.hypot(a.x - b.x, a.y - b.y); }
 function getLane(x) { if (x < 16.67) return 1; if (x < 33.34) return 2; if (x < 50.01) return 3; if (x < 66.68) return 4; if (x < 83.35) return 5; return 6; }
 
+function getNextCustomLabel(team, players) {
+  const prefix = team === 'us' ? 'U' : 'X';
+  const numbers = players
+    .filter((player) => player.label.startsWith(prefix))
+    .map((player) => Number(player.label.slice(1)))
+    .filter((value) => Number.isFinite(value));
+  const next = numbers.length ? Math.max(...numbers) + 1 : 1;
+  return `${prefix}${next}`;
+}
+
 function buildFeedback(players, ball, selectedScenario) {
   const us = players.filter((p) => p.team === 'us');
   const opp = players.filter((p) => p.team === 'opp');
@@ -223,7 +233,30 @@ export default function App() {
 
   function applyPreset(key) {
     const preset = presets[key]; setScenario(key); setPhaseIndex(0);
-    setPlayers(preset.players.map((p) => ({ ...p }))); setBall({ ...preset.ball }); setCustomNote(preset.notes);
+    setPlayers(preset.players.map((p) => ({ ...p }))); setBall({ ...preset.ball }); setCustomNote(preset.notes); setSelectedId('M2');
+  }
+
+  function addPlayer(team) {
+    const label = getNextCustomLabel(team, players);
+    const id = `${team}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+    const usCount = players.filter((player) => player.team === 'us').length;
+    const oppCount = players.filter((player) => player.team === 'opp').length;
+    const newPlayer = {
+      id,
+      label,
+      team,
+      x: team === 'us' ? (usCount % 2 === 0 ? 46 : 54) : (oppCount % 2 === 0 ? 46 : 54),
+      y: team === 'us' ? 86 : 54,
+    };
+    setPlayers([...players, newPlayer]);
+    setSelectedId(id);
+  }
+
+  function removeSelectedPlayer() {
+    if (!selectedPlayer) return;
+    const remainingPlayers = players.filter((player) => player.id !== selectedPlayer.id);
+    setPlayers(remainingPlayers);
+    setSelectedId(remainingPlayers[0]?.id || 'M2');
   }
 
   function resetBoard() { applyPreset(scenario); }
@@ -259,7 +292,7 @@ export default function App() {
               <div className="goal-posts top" /><div className="goal-posts bottom" />
             </div>
             <MovementOverlay players={[...players, { id: 'ball', x: ball.x, y: ball.y }]} arrows={activePhase?.arrows || []} show={showArrows} />
-            {players.map((player) => <PlayerChip key={player.id} player={player} selected={selectedId === player.id} roleHint={roleDescriptions[player.id] || player.label} onPointerDown={(event) => startDrag(event, player.id)} />)}
+            {players.map((player) => <PlayerChip key={player.id} player={player} selected={selectedId === player.id} roleHint={roleDescriptions[player.label] || roleDescriptions[player.id] || player.label} onPointerDown={(event) => startDrag(event, player.id)} />)}
             <PlayerChip player={{ id: 'ball', label: '', team: 'ball', x: ball.x, y: ball.y }} selected={selectedId === 'ball'} roleHint="Ball" onPointerDown={(event) => startDrag(event, 'ball')} />
           </div>
 
@@ -279,8 +312,18 @@ export default function App() {
           </section>
 
           <section className="card">
+            <h2>Player tools</h2>
+            <p className="muted">Add extras for training setups or remove the selected player.</p>
+            <div className="topbar-actions" style={{ marginTop: '10px' }}>
+              <button onClick={() => addPlayer('us')}>Add teammate</button>
+              <button onClick={() => addPlayer('opp')}>Add opponent</button>
+              <button onClick={removeSelectedPlayer} disabled={!selectedPlayer}>Remove selected</button>
+            </div>
+          </section>
+
+          <section className="card">
             <h2>Selected role</h2>
-            {selectedPlayer ? <><div className="role-pill">{selectedPlayer.id}</div><p className="muted">{roleDescriptions[selectedPlayer.id] || 'Role description not set.'}</p><p className="position-readout">Lane {getLane(selectedPlayer.x)} · X {Math.round(selectedPlayer.x)} · Y {Math.round(selectedPlayer.y)}</p></> : <p className="muted">Select a player chip to inspect their role.</p>}
+            {selectedPlayer ? <><div className="role-pill">{selectedPlayer.label}</div><p className="muted">{roleDescriptions[selectedPlayer.label] || roleDescriptions[selectedPlayer.id] || 'Custom player.'}</p><p className="position-readout">Lane {getLane(selectedPlayer.x)} · X {Math.round(selectedPlayer.x)} · Y {Math.round(selectedPlayer.y)}</p></> : <p className="muted">Select a player chip to inspect their role.</p>}
           </section>
 
           <section className="card">
