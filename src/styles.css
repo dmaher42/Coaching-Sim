@@ -2,6 +2,7 @@
   font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   color: #e5efe7;
   background: #08130b;
+  color-scheme: dark;
 }
 
 * {
@@ -28,8 +29,11 @@ button:disabled {
 }
 
 .app-shell {
-  min-height: 100vh;
+  height: 100dvh;
   padding: 18px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .topbar {
@@ -74,6 +78,9 @@ button:disabled {
   display: grid;
   grid-template-columns: minmax(0, 2fr) minmax(300px, 420px);
   gap: 18px;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .card {
@@ -87,6 +94,16 @@ button:disabled {
 .board-panel {
   display: flex;
   flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+  background: linear-gradient(180deg, #f8f7f1 0%, #eee9dc 100%);
+  color: #162016;
+}
+
+.board-panel .board-header h2,
+.board-panel .board-header p,
+.board-panel .board-footer p {
+  color: #1f2a20;
 }
 
 .board-header {
@@ -102,6 +119,7 @@ button:disabled {
   gap: 12px;
   flex-wrap: wrap;
   font-size: 14px;
+  color: #253326;
 }
 
 .dot {
@@ -118,23 +136,26 @@ button:disabled {
 
 .field {
   position: relative;
-  width: 100%;
-  aspect-ratio: 0.84;
+  width: min(100%, calc(var(--field-height) * 0.78));
+  height: var(--field-height);
   overflow: hidden;
+  --field-height: min(72dvh, 640px);
   background:
     repeating-linear-gradient(
       180deg,
-      #a5df7b 0%,
-      #a5df7b 8.5%,
-      #8bd15f 8.5%,
-      #8bd15f 17%
+      #b2e98a 0%,
+      #b2e98a 8.5%,
+      #8fd665 8.5%,
+      #8fd665 17%
     );
   border: none;
-  clip-path: ellipse(35.6% 49.8% at 50% 50%);
-  -webkit-clip-path: ellipse(35.6% 49.8% at 50% 50%);
+  clip-path: ellipse(35.8% 49.7% at 50% 50%);
+  -webkit-clip-path: ellipse(35.8% 49.7% at 50% 50%);
   box-shadow:
     inset 0 0 0 1px rgba(255,255,255,0.04),
     0 18px 36px rgba(0,0,0,0.26);
+  margin-inline: auto;
+  z-index: 2;
 }
 
 .field::before {
@@ -154,11 +175,28 @@ button:disabled {
 .field::after {
   content: "";
   position: absolute;
-  inset: 0.4%;
-  border: 2px solid rgba(0,0,0,0.58);
-  clip-path: ellipse(35.2% 49.2% at 50% 50%);
-  -webkit-clip-path: ellipse(35.2% 49.2% at 50% 50%);
+  inset: 0.6%;
+  border: 2px solid rgba(0,0,0,0.66);
+  clip-path: ellipse(35.4% 49.1% at 50% 50%);
+  -webkit-clip-path: ellipse(35.4% 49.1% at 50% 50%);
   pointer-events: none;
+}
+
+.field-shell {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 0 8px;
+}
+
+.field-board-marks {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
 }
 
 .field-overlay {
@@ -178,10 +216,10 @@ button:disabled {
 .boundary-oval {
   position: absolute;
   inset: 0;
-  border: 2.5px solid rgba(0,0,0,0.72);
+  border: 2.5px solid rgba(0,0,0,0.78);
   border-radius: 50% / 50%;
-  clip-path: ellipse(35.2% 49.2% at 50% 50%);
-  -webkit-clip-path: ellipse(35.2% 49.2% at 50% 50%);
+  clip-path: ellipse(35.4% 49.1% at 50% 50%);
+  -webkit-clip-path: ellipse(35.4% 49.1% at 50% 50%);
   pointer-events: none;
 }
 
@@ -192,6 +230,7 @@ button:disabled {
   width: 1px;
   background: rgba(255,255,255,0.08);
   pointer-events: none;
+  display: none;
 }
 
 .wing-guide.left { left: 17%; }
@@ -220,6 +259,7 @@ button:disabled {
   width: 1px;
   background: rgba(255,255,255,0.03);
   pointer-events: none;
+  display: none;
 }
 
 .centre-line {
@@ -229,7 +269,7 @@ button:disabled {
   left: 50%;
   width: 2px;
   transform: translateX(-50%);
-  background: rgba(255,255,255,0.14);
+  background: rgba(0,0,0,0.55);
   pointer-events: none;
 }
 
@@ -239,7 +279,7 @@ button:disabled {
   right: 36.5%;
   top: 39%;
   bottom: 39%;
-  border: 2px solid rgba(0,0,0,0.62);
+  border: 2px solid rgba(0,0,0,0.72);
   pointer-events: none;
 }
 
@@ -248,7 +288,7 @@ button:disabled {
   width: 10%;
   aspect-ratio: 1;
   border-radius: 50%;
-  border: 3px solid rgba(0,0,0,0.68);
+  border: 3px solid rgba(0,0,0,0.75);
   left: 45%;
   top: 45%;
   pointer-events: none;
@@ -272,22 +312,22 @@ button:disabled {
 
 .arc.top {
   top: 13.2%;
-  border-bottom: 2.5px solid rgba(0,0,0,0.8);
+  border-bottom: 2.5px solid rgba(0,0,0,0.82);
   border-bottom-left-radius: 999px;
   border-bottom-right-radius: 999px;
 }
 
 .arc.bottom {
   bottom: 13.2%;
-  border-top: 2.5px solid rgba(0,0,0,0.8);
+  border-top: 2.5px solid rgba(0,0,0,0.82);
   border-top-left-radius: 999px;
   border-top-right-radius: 999px;
 }
 
 .fifty-mark {
   position: absolute;
-  color: #e43d3d;
-  font-size: 20px;
+  color: #e23838;
+  font-size: 18px;
   font-weight: 800;
   transform: translate(-50%, -50%) rotate(-10deg);
   text-shadow: 0 1px 0 rgba(255,255,255,0.4);
@@ -317,7 +357,7 @@ button:disabled {
 .forward-label {
   position: absolute;
   left: 1.5%;
-  color: rgba(0,0,0,0.85);
+  color: rgba(0,0,0,0.86);
   font-size: 12px;
   font-weight: 800;
   letter-spacing: 0.02em;
@@ -341,19 +381,19 @@ button:disabled {
   left: 47.4%;
   right: 47.4%;
   height: 6.8%;
-  border-left: 2px solid rgba(0,0,0,0.7);
-  border-right: 2px solid rgba(0,0,0,0.7);
+  border-left: 2px solid rgba(0,0,0,0.76);
+  border-right: 2px solid rgba(0,0,0,0.76);
   pointer-events: none;
 }
 
 .goal-square.top {
   top: 1.8%;
-  border-bottom: 2px solid rgba(0,0,0,0.7);
+  border-bottom: 2px solid rgba(0,0,0,0.76);
 }
 
 .goal-square.bottom {
   bottom: 1.8%;
-  border-top: 2px solid rgba(0,0,0,0.7);
+  border-top: 2px solid rgba(0,0,0,0.76);
 }
 
 .goal-posts {
@@ -372,8 +412,8 @@ button:disabled {
   top: 0;
   bottom: 0;
   width: 2px;
-  background: rgba(0,0,0,0.78);
-  box-shadow: -21px 0 0 rgba(0,0,0,0.58), 21px 0 0 rgba(0,0,0,0.58);
+  background: rgba(0,0,0,0.82);
+  box-shadow: -21px 0 0 rgba(0,0,0,0.62), 21px 0 0 rgba(0,0,0,0.62);
 }
 
 .goal-posts::before { left: calc(50% - 6px); }
@@ -415,6 +455,9 @@ button:disabled {
   display: flex;
   flex-direction: column;
   gap: 18px;
+  min-height: 0;
+  overflow: auto;
+  padding-right: 4px;
 }
 
 .role-pill {
@@ -477,12 +520,28 @@ li + li {
 }
 
 @media (max-width: 980px) {
+  .app-shell {
+    height: auto;
+    min-height: 100dvh;
+    overflow: auto;
+  }
+
   .layout-grid {
     grid-template-columns: 1fr;
+    overflow: visible;
   }
 
   .topbar {
     flex-direction: column;
+  }
+
+  .field-shell {
+    padding-bottom: 0;
+  }
+
+  .field {
+    --field-height: min(62dvh, 500px);
+    width: min(100%, calc(var(--field-height) * 0.78));
   }
 
   .back-label,

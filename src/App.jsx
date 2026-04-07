@@ -404,25 +404,28 @@ export default function App() {
             <div className="legend"><span><i className="dot us" /> Your team</span><span><i className="dot opp" /> Opposition</span><span><i className="dot ball" /> Ball</span></div>
           </div>
 
-          <div className="field" ref={fieldRef} onPointerMove={handleFieldPointerMove} onClick={handleFieldClick} onDoubleClick={handleFieldDoubleClick}>
-            <div className="field-overlay">
+          <div className="field-shell">
+            <div className="field-board-marks">
               <div className="back-label">BACKS</div>
               <div className="midfield-label">MIDFIELD</div>
               <div className="forward-label">FORWARDS</div>
-              <div className="wing-guide left" /><div className="wing-guide right" />
-              <div className="zone-line top" /><div className="zone-line bottom" />
-              <div className="boundary-oval" />
-              {[1,2,3,4,5].map((line) => <div key={line} className="lane-line" style={{ left: `${(line / 6) * 100}%` }} />)}
-              <div className="centre-line" /><div className="centre-square" /><div className="centre-circle" />
-              <div className="arc top" /><div className="arc bottom" />
-              <div className="fifty-mark top">50</div><div className="fifty-mark top right">50</div>
-              <div className="fifty-mark bottom">50</div><div className="fifty-mark bottom right">50</div>
-              <div className="goal-square top" /><div className="goal-square bottom" />
-              <div className="goal-posts top" /><div className="goal-posts bottom" />
+              <div className="zone-line top" />
+              <div className="zone-line bottom" />
             </div>
-            <MovementOverlay players={[...players, { id: 'ball', x: ball.x, y: ball.y }]} arrows={allVisibleArrows} show={showArrows} pendingLine={pendingLine} />
-            {players.map((player) => <PlayerChip key={player.id} player={player} selected={selectedId === player.id} roleHint={roleDescriptions[player.label] || roleDescriptions[player.id] || player.label} onPointerDown={(event) => startDrag(event, player.id)} onDoubleClick={() => removePlayerById(player.id)} />)}
-            <PlayerChip player={{ id: 'ball', label: '', team: 'ball', x: ball.x, y: ball.y }} selected={selectedId === 'ball'} roleHint="Ball" onPointerDown={(event) => startDrag(event, 'ball')} />
+            <div className="field" ref={fieldRef} onPointerMove={handleFieldPointerMove} onClick={handleFieldClick} onDoubleClick={handleFieldDoubleClick}>
+              <div className="field-overlay">
+                <div className="boundary-oval" />
+                <div className="centre-line" /><div className="centre-square" /><div className="centre-circle" />
+                <div className="arc top" /><div className="arc bottom" />
+                <div className="fifty-mark top">50</div><div className="fifty-mark top right">50</div>
+                <div className="fifty-mark bottom">50</div><div className="fifty-mark bottom right">50</div>
+                <div className="goal-square top" /><div className="goal-square bottom" />
+                <div className="goal-posts top" /><div className="goal-posts bottom" />
+              </div>
+              <MovementOverlay players={[...players, { id: 'ball', x: ball.x, y: ball.y }]} arrows={allVisibleArrows} show={showArrows} pendingLine={pendingLine} />
+              {players.map((player) => <PlayerChip key={player.id} player={player} selected={selectedId === player.id} roleHint={roleDescriptions[player.label] || roleDescriptions[player.id] || player.label} onPointerDown={(event) => startDrag(event, player.id)} onDoubleClick={() => removePlayerById(player.id)} />)}
+              <PlayerChip player={{ id: 'ball', label: '', team: 'ball', x: ball.x, y: ball.y }} selected={selectedId === 'ball'} roleHint="Ball" onPointerDown={(event) => startDrag(event, 'ball')} />
+            </div>
           </div>
 
           <div className="board-footer"><p>{lineStartId ? 'Line mode is on. Click the field where you want the arrow to finish.' : 'Tip: start with the ball carrier, then ask: who is short support, who is next line, who protects the inside, and who stays dangerous ahead of the ball?'}</p></div>
