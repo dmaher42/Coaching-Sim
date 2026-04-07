@@ -10,6 +10,8 @@ Progress:
 - Removed the X/Y coordinate readout from the selected-role card.
 - Republished the root Pages entrypoint to the latest bundle so the selected-role card no longer shows stale coordinates.
 - Stripped the field back to a single oval shape with the players on top, removing the extra pitch markings and labels.
+- Keep the oval large on future passes; the field itself is the main simulation surface.
+- Widened the oval again so it occupies more of the screen for simulations.
 
 Notes:
 - Resetting or changing presets clears the undo stack.
