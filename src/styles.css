@@ -119,19 +119,19 @@ button:disabled {
 .field {
   position: relative;
   width: 100%;
-  aspect-ratio: 0.78;
+  aspect-ratio: 0.84;
   overflow: hidden;
   background:
     repeating-linear-gradient(
       180deg,
-      #9ad774 0%,
-      #9ad774 7%,
-      #82cb60 7%,
-      #82cb60 14%
+      #a5df7b 0%,
+      #a5df7b 8.5%,
+      #8bd15f 8.5%,
+      #8bd15f 17%
     );
   border: none;
-  clip-path: ellipse(36.8% 49.2% at 50% 50%);
-  -webkit-clip-path: ellipse(36.8% 49.2% at 50% 50%);
+  clip-path: ellipse(35.6% 49.8% at 50% 50%);
+  -webkit-clip-path: ellipse(35.6% 49.8% at 50% 50%);
   box-shadow:
     inset 0 0 0 1px rgba(255,255,255,0.04),
     0 18px 36px rgba(0,0,0,0.26);
@@ -154,10 +154,10 @@ button:disabled {
 .field::after {
   content: "";
   position: absolute;
-  inset: 0.8%;
-  border: 2px solid rgba(0,0,0,0.35);
-  clip-path: ellipse(36.2% 48.6% at 50% 50%);
-  -webkit-clip-path: ellipse(36.2% 48.6% at 50% 50%);
+  inset: 0.4%;
+  border: 2px solid rgba(0,0,0,0.58);
+  clip-path: ellipse(35.2% 49.2% at 50% 50%);
+  -webkit-clip-path: ellipse(35.2% 49.2% at 50% 50%);
   pointer-events: none;
 }
 
@@ -177,57 +177,81 @@ button:disabled {
 
 .boundary-oval {
   position: absolute;
-  inset: 2.8% 13.5%;
-  border: 3px solid rgba(0,0,0,0.38);
-  border-radius: 50% / 16%;
+  inset: 0;
+  border: 2.5px solid rgba(0,0,0,0.72);
+  border-radius: 50% / 50%;
+  clip-path: ellipse(35.2% 49.2% at 50% 50%);
+  -webkit-clip-path: ellipse(35.2% 49.2% at 50% 50%);
+  pointer-events: none;
 }
 
 .wing-guide {
   position: absolute;
-  top: 8%;
-  bottom: 8%;
+  top: 14%;
+  bottom: 14%;
   width: 1px;
-  background: rgba(255,255,255,0.07);
+  background: rgba(255,255,255,0.08);
+  pointer-events: none;
 }
 
 .wing-guide.left { left: 17%; }
 .wing-guide.right { right: 17%; }
 
+.zone-line {
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  border-top: 2px dashed rgba(231, 72, 72, 0.65);
+  pointer-events: none;
+}
+
+.zone-line.top {
+  top: 31%;
+}
+
+.zone-line.bottom {
+  top: 69%;
+}
+
 .lane-line {
   position: absolute;
-  top: 4%;
-  bottom: 4%;
+  top: 6%;
+  bottom: 6%;
   width: 1px;
-  background: rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.03);
+  pointer-events: none;
 }
 
 .centre-line {
   position: absolute;
-  top: 2.6%;
-  bottom: 2.6%;
+  top: 3.2%;
+  bottom: 3.2%;
   left: 50%;
   width: 2px;
   transform: translateX(-50%);
   background: rgba(255,255,255,0.14);
+  pointer-events: none;
 }
 
 .centre-square {
   position: absolute;
-  left: 29%;
-  right: 29%;
-  top: 37%;
-  bottom: 37%;
-  border: 2px solid rgba(0,0,0,0.36);
+  left: 36.5%;
+  right: 36.5%;
+  top: 39%;
+  bottom: 39%;
+  border: 2px solid rgba(0,0,0,0.62);
+  pointer-events: none;
 }
 
 .centre-circle {
   position: absolute;
-  width: 11.5%;
+  width: 10%;
   aspect-ratio: 1;
   border-radius: 50%;
-  border: 3px solid rgba(0,0,0,0.48);
-  left: 44.25%;
-  top: 44.25%;
+  border: 3px solid rgba(0,0,0,0.68);
+  left: 45%;
+  top: 45%;
+  pointer-events: none;
 }
 
 .centre-circle::after {
@@ -240,50 +264,105 @@ button:disabled {
 
 .arc {
   position: absolute;
-  left: 22%;
-  right: 22%;
-  height: 9.5%;
+  left: 20.5%;
+  right: 20.5%;
+  height: 8.7%;
+  pointer-events: none;
 }
 
 .arc.top {
-  top: 12.7%;
-  border-bottom: 3px solid rgba(0,0,0,0.55);
+  top: 13.2%;
+  border-bottom: 2.5px solid rgba(0,0,0,0.8);
   border-bottom-left-radius: 999px;
   border-bottom-right-radius: 999px;
 }
 
 .arc.bottom {
-  bottom: 12.7%;
-  border-top: 3px solid rgba(0,0,0,0.55);
+  bottom: 13.2%;
+  border-top: 2.5px solid rgba(0,0,0,0.8);
   border-top-left-radius: 999px;
   border-top-right-radius: 999px;
 }
 
+.fifty-mark {
+  position: absolute;
+  color: #e43d3d;
+  font-size: 20px;
+  font-weight: 800;
+  transform: translate(-50%, -50%) rotate(-10deg);
+  text-shadow: 0 1px 0 rgba(255,255,255,0.4);
+  pointer-events: none;
+}
+
+.fifty-mark.top {
+  top: 23%;
+}
+
+.fifty-mark.bottom {
+  top: 77%;
+}
+
+.fifty-mark:not(.right) {
+  left: 28%;
+}
+
+.fifty-mark.right {
+  left: auto;
+  right: 21%;
+  transform: translate(50%, -50%) rotate(10deg);
+}
+
+.back-label,
+.midfield-label,
+.forward-label {
+  position: absolute;
+  left: 1.5%;
+  color: rgba(0,0,0,0.85);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  pointer-events: none;
+}
+
+.back-label {
+  top: 28%;
+}
+
+.midfield-label {
+  top: 48%;
+}
+
+.forward-label {
+  top: 68%;
+}
+
 .goal-square {
   position: absolute;
-  left: 44.2%;
-  right: 44.2%;
-  height: 5.9%;
-  border-left: 2px solid rgba(0,0,0,0.45);
-  border-right: 2px solid rgba(0,0,0,0.45);
+  left: 47.4%;
+  right: 47.4%;
+  height: 6.8%;
+  border-left: 2px solid rgba(0,0,0,0.7);
+  border-right: 2px solid rgba(0,0,0,0.7);
+  pointer-events: none;
 }
 
 .goal-square.top {
-  top: 2.4%;
-  border-bottom: 2px solid rgba(0,0,0,0.45);
+  top: 1.8%;
+  border-bottom: 2px solid rgba(0,0,0,0.7);
 }
 
 .goal-square.bottom {
-  bottom: 2.4%;
-  border-top: 2px solid rgba(0,0,0,0.45);
+  bottom: 1.8%;
+  border-top: 2px solid rgba(0,0,0,0.7);
 }
 
 .goal-posts {
   position: absolute;
   left: 50%;
   width: 14%;
-  height: 28px;
+  height: 32px;
   transform: translateX(-50%);
+  pointer-events: none;
 }
 
 .goal-posts::before,
@@ -293,8 +372,8 @@ button:disabled {
   top: 0;
   bottom: 0;
   width: 2px;
-  background: rgba(0,0,0,0.72);
-  box-shadow: -20px 0 0 rgba(0,0,0,0.5), 20px 0 0 rgba(0,0,0,0.5);
+  background: rgba(0,0,0,0.78);
+  box-shadow: -21px 0 0 rgba(0,0,0,0.58), 21px 0 0 rgba(0,0,0,0.58);
 }
 
 .goal-posts::before { left: calc(50% - 6px); }
@@ -404,5 +483,16 @@ li + li {
 
   .topbar {
     flex-direction: column;
+  }
+
+  .back-label,
+  .midfield-label,
+  .forward-label {
+    left: 2.5%;
+    font-size: 10px;
+  }
+
+  .fifty-mark {
+    font-size: 15px;
   }
 }

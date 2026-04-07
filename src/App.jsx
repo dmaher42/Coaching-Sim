@@ -406,10 +406,17 @@ export default function App() {
 
           <div className="field" ref={fieldRef} onPointerMove={handleFieldPointerMove} onClick={handleFieldClick} onDoubleClick={handleFieldDoubleClick}>
             <div className="field-overlay">
-              <div className="boundary-oval" /><div className="wing-guide left" /><div className="wing-guide right" />
+              <div className="back-label">BACKS</div>
+              <div className="midfield-label">MIDFIELD</div>
+              <div className="forward-label">FORWARDS</div>
+              <div className="wing-guide left" /><div className="wing-guide right" />
+              <div className="zone-line top" /><div className="zone-line bottom" />
+              <div className="boundary-oval" />
               {[1,2,3,4,5].map((line) => <div key={line} className="lane-line" style={{ left: `${(line / 6) * 100}%` }} />)}
               <div className="centre-line" /><div className="centre-square" /><div className="centre-circle" />
               <div className="arc top" /><div className="arc bottom" />
+              <div className="fifty-mark top">50</div><div className="fifty-mark top right">50</div>
+              <div className="fifty-mark bottom">50</div><div className="fifty-mark bottom right">50</div>
               <div className="goal-square top" /><div className="goal-square bottom" />
               <div className="goal-posts top" /><div className="goal-posts bottom" />
             </div>
