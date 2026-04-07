@@ -176,9 +176,9 @@ function buildFeedback(players, ball, selectedScenario) {
   return feedback;
 }
 
-function PlayerChip({ player, onPointerDown, selected, roleHint }) {
+function PlayerChip({ player, onPointerDown, onDoubleClick, selected, roleHint }) {
   const size = player.team === 'ball' ? 18 : 34;
-  return <button type="button" className={`player-chip ${selected ? 'selected' : ''} ${player.team}`} style={{ left: `${player.x}%`, top: `${(player.y / FIELD_HEIGHT) * 100}%`, width: `${size}px`, height: `${size}px`, background: TEAM_COLOURS[player.team] }} onPointerDown={onPointerDown} title={roleHint}>{player.label}</button>;
+  return <button type="button" className={`player-chip ${selected ? 'selected' : ''} ${player.team}`} style={{ left: `${player.x}%`, top: `${(player.y / FIELD_HEIGHT) * 100}%`, width: `${size}px`, height: `${size}px`, background: TEAM_COLOURS[player.team] }} onPointerDown={onPointerDown} onDoubleClick={onDoubleClick} title={roleHint}>{player.label}</button>;
 }
 
 function MovementOverlay({ players, arrows, show, pendingLine }) {
@@ -216,6 +216,7 @@ export default function App() {
   const [lineType, setLineType] = useState('us');
   const [pendingLinePoint, setPendingLinePoint] = useState(null);
   const [customNote, setCustomNote] = useState('Use this board to drag players into shape. Start with one kick, then talk through the next two movements.');
+  const [undoStack, setUndoStack] = useState([]);
   const selectedPlayer = players.find((p) => p.id === selectedId) || null;
   const feedback = useMemo(() => buildFeedback(players, ball, scenario), [players, ball, scenario]);
   const phases = phaseTemplates[scenario] || [];
@@ -235,7 +236,8 @@ export default function App() {
 
   function startDrag(event, targetId) {
     if (lineStartId) return;
-    event.preventDefault(); setSelectedId(targetId); updateFromPointer(event.clientX, event.clientY, targetId);
+    event.preventDefault();
+    setSelectedId(targetId);
     const move = (moveEvent) => updateFromPointer(moveEvent.clientX, moveEvent.clientY, targetId);
     const end = () => { window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', end); };
     window.addEventListener('pointermove', move); window.addEventListener('pointerup', end);
@@ -265,27 +267,70 @@ export default function App() {
     setPendingLinePoint(null);
   }
 
+  function handleFieldDoubleClick(event) {
+    if (lineStartId) return;
+    const point = getFieldPoint(event.clientX, event.clientY);
+    if (!point) return;
+    addPlayer('us', point);
+  }
+
   function applyPreset(key) {
     const preset = presets[key]; setScenario(key); setPhaseIndex(0);
     setPlayers(preset.players.map((p) => ({ ...p }))); setBall({ ...preset.ball }); setCustomNote(preset.notes); setSelectedId('M2');
-    setCustomLines([]); setLineStartId(null); setPendingLinePoint(null);
+    setCustomLines([]); setLineStartId(null); setPendingLinePoint(null); setUndoStack([]);
   }
 
-  function addPlayer(team) {
+  function addPlayer(team, point = null) {
     const label = getNextCustomLabel(team, players);
     const id = `${team}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
     const count = players.filter((player) => player.team === team).length;
-    const newPlayer = { id, label, team, x: count % 2 === 0 ? 46 : 54, y: team === 'us' ? 86 : 54 };
+    const newPlayer = {
+      id,
+      label,
+      team,
+      x: point?.x ?? (count % 2 === 0 ? 46 : 54),
+      y: point?.y ?? (team === 'us' ? 86 : 54),
+    };
     setPlayers([...players, newPlayer]);
     setSelectedId(id);
+    setUndoStack((current) => [...current, { type: 'add-player', player: newPlayer, previousSelectedId: selectedId }]);
+  }
+
+  function removePlayerById(playerId) {
+    const playerToRemove = players.find((player) => player.id === playerId);
+    if (!playerToRemove) return;
+    const removedLines = customLines.filter((line) => line.from === playerId);
+    const remainingPlayers = players.filter((player) => player.id !== playerId);
+    setPlayers(remainingPlayers);
+    setCustomLines((current) => current.filter((line) => line.from !== playerId));
+    setSelectedId(selectedId === playerId ? remainingPlayers[0]?.id || 'M2' : selectedId);
+    setUndoStack((current) => [...current, { type: 'remove-player', player: playerToRemove, index: players.findIndex((player) => player.id === playerId), lines: removedLines, previousSelectedId: selectedId }]);
   }
 
   function removeSelectedPlayer() {
     if (!selectedPlayer) return;
-    const remainingPlayers = players.filter((player) => player.id !== selectedPlayer.id);
-    setPlayers(remainingPlayers);
-    setCustomLines((current) => current.filter((line) => line.from !== selectedPlayer.id));
-    setSelectedId(remainingPlayers[0]?.id || 'M2');
+    removePlayerById(selectedPlayer.id);
+  }
+
+  function undoLastChange() {
+    const lastAction = undoStack[undoStack.length - 1];
+    if (!lastAction) return;
+    if (lastAction.type === 'add-player') {
+      setPlayers((current) => current.filter((player) => player.id !== lastAction.player.id));
+      setSelectedId(lastAction.previousSelectedId || 'M2');
+    } else if (lastAction.type === 'remove-player') {
+      setPlayers((current) => {
+        const withoutPlayer = current.filter((player) => player.id !== lastAction.player.id);
+        const insertAt = clamp(lastAction.index, 0, withoutPlayer.length);
+        withoutPlayer.splice(insertAt, 0, lastAction.player);
+        return withoutPlayer;
+      });
+      if (lastAction.lines.length) {
+        setCustomLines((current) => [...current, ...lastAction.lines]);
+      }
+      setSelectedId(lastAction.previousSelectedId || lastAction.player.id);
+    }
+    setUndoStack((current) => current.slice(0, -1));
   }
 
   function startLine(type) {
@@ -337,7 +382,7 @@ export default function App() {
             <div className="legend"><span><i className="dot us" /> Your team</span><span><i className="dot opp" /> Opposition</span><span><i className="dot ball" /> Ball</span></div>
           </div>
 
-          <div className="field" ref={fieldRef} onPointerMove={handleFieldPointerMove} onClick={handleFieldClick}>
+          <div className="field" ref={fieldRef} onPointerMove={handleFieldPointerMove} onClick={handleFieldClick} onDoubleClick={handleFieldDoubleClick}>
             <div className="field-overlay">
               <div className="boundary-oval" /><div className="wing-guide left" /><div className="wing-guide right" />
               {[1,2,3,4,5].map((line) => <div key={line} className="lane-line" style={{ left: `${(line / 6) * 100}%` }} />)}
@@ -347,7 +392,7 @@ export default function App() {
               <div className="goal-posts top" /><div className="goal-posts bottom" />
             </div>
             <MovementOverlay players={[...players, { id: 'ball', x: ball.x, y: ball.y }]} arrows={allVisibleArrows} show={showArrows} pendingLine={pendingLine} />
-            {players.map((player) => <PlayerChip key={player.id} player={player} selected={selectedId === player.id} roleHint={roleDescriptions[player.label] || roleDescriptions[player.id] || player.label} onPointerDown={(event) => startDrag(event, player.id)} />)}
+            {players.map((player) => <PlayerChip key={player.id} player={player} selected={selectedId === player.id} roleHint={roleDescriptions[player.label] || roleDescriptions[player.id] || player.label} onPointerDown={(event) => startDrag(event, player.id)} onDoubleClick={() => removePlayerById(player.id)} />)}
             <PlayerChip player={{ id: 'ball', label: '', team: 'ball', x: ball.x, y: ball.y }} selected={selectedId === 'ball'} roleHint="Ball" onPointerDown={(event) => startDrag(event, 'ball')} />
           </div>
 
@@ -368,11 +413,12 @@ export default function App() {
 
           <section className="card">
             <h2>Player tools</h2>
-            <p className="muted">Add extras for training setups or remove the selected player.</p>
+            <p className="muted">Double-click a player to remove them. Double-click open field space to add a teammate. Undo restores the last change.</p>
             <div className="topbar-actions" style={{ marginTop: '10px' }}>
               <button onClick={() => addPlayer('us')}>Add teammate</button>
               <button onClick={() => addPlayer('opp')}>Add opponent</button>
               <button onClick={removeSelectedPlayer} disabled={!selectedPlayer}>Remove selected</button>
+              <button onClick={undoLastChange} disabled={undoStack.length === 0}>Undo last change</button>
             </div>
           </section>
 
