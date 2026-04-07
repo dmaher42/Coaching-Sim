@@ -1,9 +1,0 @@
-{
-  "name": "AFL Sim Coach",
-  "short_name": "AFL Coach",
-  "start_url": "/Coaching-Sim/",
-  "display": "standalone",
-  "background_color": "#0b5d1e",
-  "theme_color": "#0b5d1e",
-  "icons": []
-}
