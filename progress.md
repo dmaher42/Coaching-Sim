@@ -14,6 +14,7 @@ Progress:
 - Widened the oval again so it occupies more of the screen for simulations.
 - Hid the control sidebar by default so the oval can run edge-to-edge across the screen.
 - Restored the AFL pitch markings: goals, arcs, center square, and guide lines, while keeping the oval full width.
+- Rotated the field layout to a tall portrait oval so it runs up and down the screen.
 
 Notes:
 - Resetting or changing presets clears the undo stack.
