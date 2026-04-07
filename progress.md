@@ -9,6 +9,7 @@ Progress:
 - Tightened the board layout so the side panel can scroll independently and the oval stays closer to the reference board size.
 - Removed the X/Y coordinate readout from the selected-role card.
 - Republished the root Pages entrypoint to the latest bundle so the selected-role card no longer shows stale coordinates.
+- Stripped the field back to a single oval shape with the players on top, removing the extra pitch markings and labels.
 
 Notes:
 - Resetting or changing presets clears the undo stack.
