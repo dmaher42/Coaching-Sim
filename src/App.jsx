@@ -203,6 +203,38 @@ function MovementOverlay({ players, arrows, show, pendingLine }) {
   );
 }
 
+function FieldMarkings() {
+  return (
+    <svg className="field-markings" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <clipPath id="field-clip">
+          <ellipse cx="50" cy="50" rx="48.2" ry="49.8" />
+        </clipPath>
+      </defs>
+      <g clipPath="url(#field-clip)">
+        <line className="field-mark field-center-line" x1="50" y1="0" x2="50" y2="100" />
+        <line className="field-mark field-guide" x1="0" y1="30" x2="100" y2="30" />
+        <line className="field-mark field-guide" x1="0" y1="70" x2="100" y2="70" />
+        <path className="field-mark field-arc" d="M 16 16 C 30 28, 70 28, 84 16" />
+        <path className="field-mark field-arc" d="M 16 84 C 30 72, 70 72, 84 84" />
+        <rect className="field-mark field-goal-square" x="45" y="0" width="10" height="8" />
+        <rect className="field-mark field-goal-square" x="45" y="92" width="10" height="8" />
+        <line className="field-mark field-goal-post" x1="40" y1="0" x2="40" y2="8" />
+        <line className="field-mark field-goal-post" x1="50" y1="0" x2="50" y2="8" />
+        <line className="field-mark field-goal-post" x1="60" y1="0" x2="60" y2="8" />
+        <line className="field-mark field-goal-post" x1="40" y1="92" x2="40" y2="100" />
+        <line className="field-mark field-goal-post" x1="50" y1="92" x2="50" y2="100" />
+        <line className="field-mark field-goal-post" x1="60" y1="92" x2="60" y2="100" />
+        <rect className="field-mark field-center-square" x="23.5" y="35" width="53" height="30" />
+        <circle className="field-mark field-center-circle" cx="50" cy="50" r="3.8" />
+        <circle className="field-mark field-center-circle inner" cx="50" cy="50" r="1.4" />
+        <path className="field-mark field-fifty" d="M 14 25 C 28 38, 72 38, 86 25" />
+        <path className="field-mark field-fifty" d="M 14 75 C 28 62, 72 62, 86 75" />
+      </g>
+    </svg>
+  );
+}
+
 export default function App() {
   const fieldRef = useRef(null);
   const [players, setPlayers] = useState(centreBouncePlayers);
@@ -403,7 +435,9 @@ export default function App() {
         <section className="board-panel card">
           <div className="field-shell">
             <div className="field" ref={fieldRef} onPointerMove={handleFieldPointerMove} onClick={handleFieldClick} onDoubleClick={handleFieldDoubleClick}>
-              <div className="field-overlay" />
+              <div className="field-overlay">
+                <FieldMarkings />
+              </div>
               <MovementOverlay players={[...players, { id: 'ball', x: ball.x, y: ball.y }]} arrows={allVisibleArrows} show={showArrows} pendingLine={pendingLine} />
               {players.map((player) => <PlayerChip key={player.id} player={player} selected={selectedId === player.id} roleHint={roleDescriptions[player.label] || roleDescriptions[player.id] || player.label} onPointerDown={(event) => startDrag(event, player.id)} onDoubleClick={() => removePlayerById(player.id)} />)}
               <PlayerChip player={{ id: 'ball', label: '', team: 'ball', x: ball.x, y: ball.y }} selected={selectedId === 'ball'} roleHint="Ball" onPointerDown={(event) => startDrag(event, 'ball')} />

@@ -13,6 +13,7 @@ Progress:
 - Keep the oval large on future passes; the field itself is the main simulation surface.
 - Widened the oval again so it occupies more of the screen for simulations.
 - Hid the control sidebar by default so the oval can run edge-to-edge across the screen.
+- Restored the AFL pitch markings: goals, arcs, center square, and guide lines, while keeping the oval full width.
 
 Notes:
 - Resetting or changing presets clears the undo stack.
