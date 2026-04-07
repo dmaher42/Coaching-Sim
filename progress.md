@@ -12,6 +12,7 @@ Progress:
 - Stripped the field back to a single oval shape with the players on top, removing the extra pitch markings and labels.
 - Keep the oval large on future passes; the field itself is the main simulation surface.
 - Widened the oval again so it occupies more of the screen for simulations.
+- Hid the control sidebar by default so the oval can run edge-to-edge across the screen.
 
 Notes:
 - Resetting or changing presets clears the undo stack.

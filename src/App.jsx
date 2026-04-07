@@ -211,6 +211,7 @@ export default function App() {
   const [scenario, setScenario] = useState('centreBounce');
   const [phaseIndex, setPhaseIndex] = useState(0);
   const [showArrows, setShowArrows] = useState(true);
+  const [showControls, setShowControls] = useState(false);
   const [customLines, setCustomLines] = useState([]);
   const [lineStartId, setLineStartId] = useState(null);
   const [lineType, setLineType] = useState('us');
@@ -394,6 +395,7 @@ export default function App() {
           <button onClick={() => applyPreset('kickoutBoundary')}>Kick-out shape</button>
           <button onClick={() => applyPreset('boundaryChain')}>Second-kick shape</button>
           <button onClick={resetBoard}>Reset</button>
+          <button onClick={() => setShowControls((value) => !value)}>{showControls ? 'Hide controls' : 'Controls'}</button>
         </div>
       </header>
 
@@ -409,7 +411,7 @@ export default function App() {
           </div>
         </section>
 
-        <aside className="side-panel">
+        {showControls && <aside className="side-panel">
           <section className="card">
             <h2>Phase builder</h2>
             <p className="muted">{activePhase ? `${activePhase.name} · ${phaseIndex + 1}/${phases.length}` : 'No phases for this scenario yet.'}</p>
@@ -461,7 +463,7 @@ export default function App() {
             <h2>Scenario notes</h2>
             <textarea value={customNote} onChange={(event) => setCustomNote(event.target.value)} placeholder="Write what the play is, what the cue is, and what the next action should be." />
           </section>
-        </aside>
+        </aside>}
       </main>
     </div>
   );
