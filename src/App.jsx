@@ -181,22 +181,23 @@ function PlayerChip({ player, onPointerDown, selected, roleHint }) {
   return <button type="button" className={`player-chip ${selected ? 'selected' : ''} ${player.team}`} style={{ left: `${player.x}%`, top: `${(player.y / FIELD_HEIGHT) * 100}%`, width: `${size}px`, height: `${size}px`, background: TEAM_COLOURS[player.team] }} onPointerDown={onPointerDown} title={roleHint}>{player.label}</button>;
 }
 
-function MovementOverlay({ players, arrows, show }) {
-  if (!show) return null;
+function MovementOverlay({ players, arrows, show, pendingLine }) {
+  if (!show && !pendingLine) return null;
   const byId = Object.fromEntries(players.map((p) => [p.id, p]));
   const resolvePoint = (value) => (typeof value === 'string' ? byId[value] : value);
+  const allArrows = [...(show ? arrows : []), ...(pendingLine ? [pendingLine] : [])];
   return (
     <svg className="movement-overlay" viewBox="0 0 100 100" preserveAspectRatio="none">
       <defs>
         <marker id="arrow-us" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#60a5fa" /></marker>
         <marker id="arrow-ball" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#fbbf24" /></marker>
       </defs>
-      {arrows.map((arrow, index) => {
+      {allArrows.map((arrow, index) => {
         const from = resolvePoint(arrow.from); const to = resolvePoint(arrow.to); if (!from || !to) return null;
         const x1 = from.x; const y1 = (from.y / FIELD_HEIGHT) * 100; const x2 = to.x; const y2 = (to.y / FIELD_HEIGHT) * 100;
         const marker = arrow.color === 'ball' ? 'url(#arrow-ball)' : 'url(#arrow-us)';
         const stroke = arrow.color === 'ball' ? '#fbbf24' : '#60a5fa';
-        return <line key={index} x1={x1} y1={y1} x2={x2} y2={y2} stroke={stroke} strokeWidth="0.7" strokeDasharray={arrow.color === 'ball' ? '0' : '2 1.5'} markerEnd={marker} />;
+        return <line key={index} x1={x1} y1={y1} x2={x2} y2={y2} stroke={stroke} strokeWidth="0.7" strokeDasharray={arrow.color === 'ball' ? '0' : '2 1.5'} opacity={arrow.pending ? 0.8 : 1} markerEnd={marker} />;
       })}
     </svg>
   );
@@ -210,6 +211,10 @@ export default function App() {
   const [scenario, setScenario] = useState('centreBounce');
   const [phaseIndex, setPhaseIndex] = useState(0);
   const [showArrows, setShowArrows] = useState(true);
+  const [customLines, setCustomLines] = useState([]);
+  const [lineStartId, setLineStartId] = useState(null);
+  const [lineType, setLineType] = useState('us');
+  const [pendingLinePoint, setPendingLinePoint] = useState(null);
   const [customNote, setCustomNote] = useState('Use this board to drag players into shape. Start with one kick, then talk through the next two movements.');
   const selectedPlayer = players.find((p) => p.id === selectedId) || null;
   const feedback = useMemo(() => buildFeedback(players, ball, scenario), [players, ball, scenario]);
@@ -220,34 +225,57 @@ export default function App() {
     const rect = fieldRef.current?.getBoundingClientRect(); if (!rect) return;
     const x = clamp(((clientX - rect.left) / rect.width) * 100, 2, 98);
     const y = clamp((((clientY - rect.top) / rect.height) * FIELD_HEIGHT), 2, FIELD_HEIGHT - 2);
+    if (lineStartId) {
+      setPendingLinePoint({ x, y });
+      return;
+    }
     if (targetId === 'ball') { setBall({ x, y }); return; }
     setPlayers((current) => current.map((player) => (player.id === targetId ? { ...player, x, y } : player)));
   }
 
   function startDrag(event, targetId) {
+    if (lineStartId) return;
     event.preventDefault(); setSelectedId(targetId); updateFromPointer(event.clientX, event.clientY, targetId);
     const move = (moveEvent) => updateFromPointer(moveEvent.clientX, moveEvent.clientY, targetId);
     const end = () => { window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', end); };
     window.addEventListener('pointermove', move); window.addEventListener('pointerup', end);
   }
 
+  function getFieldPoint(clientX, clientY) {
+    const rect = fieldRef.current?.getBoundingClientRect();
+    if (!rect) return null;
+    return {
+      x: clamp(((clientX - rect.left) / rect.width) * 100, 2, 98),
+      y: clamp((((clientY - rect.top) / rect.height) * FIELD_HEIGHT), 2, FIELD_HEIGHT - 2),
+    };
+  }
+
+  function handleFieldPointerMove(event) {
+    if (!lineStartId) return;
+    const point = getFieldPoint(event.clientX, event.clientY);
+    if (point) setPendingLinePoint(point);
+  }
+
+  function handleFieldClick(event) {
+    if (!lineStartId) return;
+    const point = getFieldPoint(event.clientX, event.clientY);
+    if (!point) return;
+    setCustomLines((current) => [...current, { id: `line-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`, from: lineStartId, to: point, color: lineType }]);
+    setLineStartId(null);
+    setPendingLinePoint(null);
+  }
+
   function applyPreset(key) {
     const preset = presets[key]; setScenario(key); setPhaseIndex(0);
     setPlayers(preset.players.map((p) => ({ ...p }))); setBall({ ...preset.ball }); setCustomNote(preset.notes); setSelectedId('M2');
+    setCustomLines([]); setLineStartId(null); setPendingLinePoint(null);
   }
 
   function addPlayer(team) {
     const label = getNextCustomLabel(team, players);
     const id = `${team}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
-    const usCount = players.filter((player) => player.team === 'us').length;
-    const oppCount = players.filter((player) => player.team === 'opp').length;
-    const newPlayer = {
-      id,
-      label,
-      team,
-      x: team === 'us' ? (usCount % 2 === 0 ? 46 : 54) : (oppCount % 2 === 0 ? 46 : 54),
-      y: team === 'us' ? 86 : 54,
-    };
+    const count = players.filter((player) => player.team === team).length;
+    const newPlayer = { id, label, team, x: count % 2 === 0 ? 46 : 54, y: team === 'us' ? 86 : 54 };
     setPlayers([...players, newPlayer]);
     setSelectedId(id);
   }
@@ -256,12 +284,39 @@ export default function App() {
     if (!selectedPlayer) return;
     const remainingPlayers = players.filter((player) => player.id !== selectedPlayer.id);
     setPlayers(remainingPlayers);
+    setCustomLines((current) => current.filter((line) => line.from !== selectedPlayer.id));
     setSelectedId(remainingPlayers[0]?.id || 'M2');
+  }
+
+  function startLine(type) {
+    if (!selectedPlayer) return;
+    setLineType(type);
+    setLineStartId(selectedPlayer.id);
+    setPendingLinePoint({ x: selectedPlayer.x, y: selectedPlayer.y - 8 });
+  }
+
+  function cancelLine() {
+    setLineStartId(null);
+    setPendingLinePoint(null);
+  }
+
+  function removeLinesForSelected() {
+    if (!selectedPlayer) return;
+    setCustomLines((current) => current.filter((line) => line.from !== selectedPlayer.id));
+  }
+
+  function clearAllLines() {
+    setCustomLines([]);
+    setLineStartId(null);
+    setPendingLinePoint(null);
   }
 
   function resetBoard() { applyPreset(scenario); }
   function prevPhase() { setPhaseIndex((current) => Math.max(0, current - 1)); }
   function nextPhase() { setPhaseIndex((current) => Math.min(phases.length - 1, current + 1)); }
+
+  const pendingLine = lineStartId && pendingLinePoint ? { from: lineStartId, to: pendingLinePoint, color: lineType, pending: true } : null;
+  const allVisibleArrows = [...(activePhase?.arrows || []), ...customLines];
 
   return (
     <div className="app-shell">
@@ -282,7 +337,7 @@ export default function App() {
             <div className="legend"><span><i className="dot us" /> Your team</span><span><i className="dot opp" /> Opposition</span><span><i className="dot ball" /> Ball</span></div>
           </div>
 
-          <div className="field" ref={fieldRef}>
+          <div className="field" ref={fieldRef} onPointerMove={handleFieldPointerMove} onClick={handleFieldClick}>
             <div className="field-overlay">
               <div className="boundary-oval" /><div className="wing-guide left" /><div className="wing-guide right" />
               {[1,2,3,4,5].map((line) => <div key={line} className="lane-line" style={{ left: `${(line / 6) * 100}%` }} />)}
@@ -291,12 +346,12 @@ export default function App() {
               <div className="goal-square top" /><div className="goal-square bottom" />
               <div className="goal-posts top" /><div className="goal-posts bottom" />
             </div>
-            <MovementOverlay players={[...players, { id: 'ball', x: ball.x, y: ball.y }]} arrows={activePhase?.arrows || []} show={showArrows} />
+            <MovementOverlay players={[...players, { id: 'ball', x: ball.x, y: ball.y }]} arrows={allVisibleArrows} show={showArrows} pendingLine={pendingLine} />
             {players.map((player) => <PlayerChip key={player.id} player={player} selected={selectedId === player.id} roleHint={roleDescriptions[player.label] || roleDescriptions[player.id] || player.label} onPointerDown={(event) => startDrag(event, player.id)} />)}
             <PlayerChip player={{ id: 'ball', label: '', team: 'ball', x: ball.x, y: ball.y }} selected={selectedId === 'ball'} roleHint="Ball" onPointerDown={(event) => startDrag(event, 'ball')} />
           </div>
 
-          <div className="board-footer"><p>Tip: start with the ball carrier, then ask: who is short support, who is next line, who protects the inside, and who stays dangerous ahead of the ball?</p></div>
+          <div className="board-footer"><p>{lineStartId ? 'Line mode is on. Click the field where you want the arrow to finish.' : 'Tip: start with the ball carrier, then ask: who is short support, who is next line, who protects the inside, and who stays dangerous ahead of the ball?'}</p></div>
         </section>
 
         <aside className="side-panel">
@@ -318,6 +373,20 @@ export default function App() {
               <button onClick={() => addPlayer('us')}>Add teammate</button>
               <button onClick={() => addPlayer('opp')}>Add opponent</button>
               <button onClick={removeSelectedPlayer} disabled={!selectedPlayer}>Remove selected</button>
+            </div>
+          </section>
+
+          <section className="card">
+            <h2>Movement tools</h2>
+            <p className="muted">Select a player, then create your own movement line.</p>
+            <div className="topbar-actions" style={{ marginTop: '10px' }}>
+              <button onClick={() => startLine('us')} disabled={!selectedPlayer || !!lineStartId}>Add player line</button>
+              <button onClick={() => startLine('ball')} disabled={!selectedPlayer || !!lineStartId}>Add ball line</button>
+              <button onClick={cancelLine} disabled={!lineStartId}>Cancel line</button>
+            </div>
+            <div className="topbar-actions" style={{ marginTop: '10px' }}>
+              <button onClick={removeLinesForSelected} disabled={!selectedPlayer}>Remove selected lines</button>
+              <button onClick={clearAllLines} disabled={customLines.length === 0 && !lineStartId}>Clear all lines</button>
             </div>
           </section>
 
