@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 
 const FIELD_HEIGHT = 140;
 const BOARD_STORAGE_KEY = 'afl-sim-coach-board-v1';
+const BOARD_SYNC_PARAM = 'board';
 const DEFAULT_CUSTOM_NOTE = 'Use this board to drag players into shape. Start with one kick, then talk through the next two movements.';
 
 const TEAM_COLOURS = {
@@ -150,6 +151,71 @@ function getImportedNames(text) {
     .filter(Boolean);
 }
 
+function sanitizeBoardPlayer(player) {
+  if (!player || typeof player !== 'object') return null;
+  if (typeof player.id !== 'string' || typeof player.label !== 'string' || typeof player.team !== 'string') return null;
+  return {
+    ...player,
+    name: typeof player.name === 'string' ? player.name : '',
+    x: typeof player.x === 'number' ? clamp(player.x, 2, 98) : 50,
+    y: typeof player.y === 'number' ? clamp(player.y, 2, FIELD_HEIGHT - 2) : 70,
+  };
+}
+
+function sanitizeBoardLine(line) {
+  if (!line || typeof line !== 'object') return null;
+  if (typeof line.id !== 'string' || typeof line.from !== 'string' || typeof line.color !== 'string') return null;
+  const to = typeof line.to === 'string'
+    ? line.to
+    : line.to && typeof line.to.x === 'number' && typeof line.to.y === 'number'
+      ? { x: clamp(line.to.x, 2, 98), y: clamp(line.to.y, 2, FIELD_HEIGHT - 2) }
+      : null;
+  if (!to) return null;
+  return { ...line, to };
+}
+
+function sanitizeBoardState(rawState) {
+  if (!rawState || typeof rawState !== 'object') return null;
+  const players = Array.isArray(rawState.players) ? rawState.players.map(sanitizeBoardPlayer).filter(Boolean) : null;
+  return {
+    players: players && players.length ? players : createDefaultPlayers(),
+    ball: rawState.ball && typeof rawState.ball.x === 'number' && typeof rawState.ball.y === 'number'
+      ? { x: clamp(rawState.ball.x, 2, 98), y: clamp(rawState.ball.y, 2, FIELD_HEIGHT - 2) }
+      : { ...centreBounceBall },
+    selectedId: typeof rawState.selectedId === 'string' ? rawState.selectedId : 'M2',
+    customLines: Array.isArray(rawState.customLines) ? rawState.customLines.map(sanitizeBoardLine).filter(Boolean) : [],
+    customNote: typeof rawState.customNote === 'string' ? rawState.customNote : DEFAULT_CUSTOM_NOTE,
+  };
+}
+
+function encodeBoardState(boardState) {
+  const json = JSON.stringify(boardState);
+  const bytes = new TextEncoder().encode(json);
+  let binary = '';
+  bytes.forEach((byte) => {
+    binary += String.fromCharCode(byte);
+  });
+  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
+}
+
+function decodeBoardState(encoded) {
+  if (!encoded) return null;
+  try {
+    const padded = encoded.replace(/-/g, '+').replace(/_/g, '/').padEnd(Math.ceil(encoded.length / 4) * 4, '=');
+    const binary = atob(padded);
+    const bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0));
+    return sanitizeBoardState(JSON.parse(new TextDecoder().decode(bytes)));
+  } catch {
+    return null;
+  }
+}
+
+function getUrlBoardState() {
+  if (typeof window === 'undefined') return null;
+  const url = new URL(window.location.href);
+  return decodeBoardState(url.searchParams.get(BOARD_SYNC_PARAM));
+}
+
 function createDefaultPlayers() {
   return centreBouncePlayers.map((player) => ({ ...player, name: '' }));
 }
@@ -164,20 +230,12 @@ function cloneSavedPlayer(player) {
 
 function readSavedBoardState() {
   if (typeof window === 'undefined') return null;
+  const urlState = getUrlBoardState();
+  if (urlState) return urlState;
   try {
     const raw = window.localStorage.getItem(BOARD_STORAGE_KEY);
     if (!raw) return null;
-    const parsed = JSON.parse(raw);
-    const players = Array.isArray(parsed.players) ? parsed.players.map(cloneSavedPlayer).filter(Boolean) : null;
-    return {
-      players: players && players.length ? players : createDefaultPlayers(),
-      ball: parsed.ball && typeof parsed.ball.x === 'number' && typeof parsed.ball.y === 'number'
-        ? { x: clamp(parsed.ball.x, 2, 98), y: clamp(parsed.ball.y, 2, FIELD_HEIGHT - 2) }
-        : { ...centreBounceBall },
-      selectedId: typeof parsed.selectedId === 'string' ? parsed.selectedId : 'M2',
-      customLines: Array.isArray(parsed.customLines) ? parsed.customLines : [],
-      customNote: typeof parsed.customNote === 'string' ? parsed.customNote : DEFAULT_CUSTOM_NOTE,
-    };
+    return sanitizeBoardState(JSON.parse(raw));
   } catch {
     return null;
   }
@@ -443,6 +501,25 @@ export default function App() {
     setPendingLinePoint(null);
   }
 
+  async function copySyncLink() {
+    if (typeof window === 'undefined') return;
+    const boardState = sanitizeBoardState({
+      players,
+      ball,
+      selectedId,
+      customLines,
+      customNote,
+    });
+    const url = new URL(window.location.href);
+    url.searchParams.set(BOARD_SYNC_PARAM, encodeBoardState(boardState));
+    const syncUrl = url.toString();
+    try {
+      await window.navigator.clipboard.writeText(syncUrl);
+    } catch {
+      window.prompt('Copy this board link to open on another device:', syncUrl);
+    }
+  }
+
   function undoLastChange() {
     const lastAction = undoStack[undoStack.length - 1];
     if (!lastAction) return;
@@ -548,6 +625,7 @@ export default function App() {
       {showMenu && (
         <div className="menu-popover" id="app-menu">
           <button onClick={() => { resetBoard(); setShowMenu(false); }}>Reset</button>
+          <button onClick={() => { copySyncLink(); setShowMenu(false); }}>Copy sync link</button>
           <button onClick={() => { setShowControls((value) => !value); setShowMenu(false); }}>{showControls ? 'Hide controls' : 'Controls'}</button>
         </div>
       )}
