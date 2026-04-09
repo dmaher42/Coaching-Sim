@@ -278,8 +278,11 @@ textarea {
   border-radius: 12px;
   border: 2px solid rgba(255,255,255,0.88);
   color: white;
-  display: grid;
-  place-items: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  line-height: 1;
   font-weight: 700;
   font-size: 11px;
   padding: 0 12px;
