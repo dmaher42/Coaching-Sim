@@ -420,9 +420,16 @@ li + li {
   }
 
   .field {
-    width: min(90vw, 620px);
-    --field-height: min(84dvh, 760px);
+    width: min(100vw, 760px);
+    --field-height: min(70dvh, 660px);
     margin-left: 0;
+    clip-path: ellipse(44.5% 49.8% at 50% 50%);
+    -webkit-clip-path: ellipse(44.5% 49.8% at 50% 50%);
+  }
+
+  .field::after {
+    clip-path: ellipse(43.8% 49.2% at 50% 50%);
+    -webkit-clip-path: ellipse(43.8% 49.2% at 50% 50%);
   }
 
   .side-panel {

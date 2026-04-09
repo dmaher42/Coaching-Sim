@@ -27,6 +27,7 @@ Progress:
 - Narrowed the oval again so it reads more like a true AFL oval and less like a circle.
 - Imported players and names now persist in browser localStorage so the roster survives refreshes on the same device.
 - Added a simple cross-device sync link so the current board state can be copied from one device and opened on another.
+- Broadened the mobile oval and reduced its height so it reads less compacted on phone screens.
 
 Notes:
 - Resetting or changing presets clears the undo stack.
