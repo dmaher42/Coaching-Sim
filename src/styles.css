@@ -201,7 +201,7 @@ textarea {
   min-height: 0;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   padding: 0;
   width: 100%;
 }
@@ -274,14 +274,14 @@ textarea {
 .player-chip {
   position: absolute;
   transform: translate(-50%, -50%);
-  border-radius: 999px;
+  border-radius: 12px;
   border: 2px solid rgba(255,255,255,0.88);
   color: white;
   display: grid;
   place-items: center;
   font-weight: 700;
   font-size: 11px;
-  padding: 0 8px;
+  padding: 0 12px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

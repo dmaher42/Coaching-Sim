@@ -258,8 +258,6 @@ function FieldMarkings() {
         <rect className="field-mark field-center-square" x="24" y="35" width="52" height="30" />
         <circle className="field-mark field-center-circle" cx="50" cy="50" r="4.2" />
         <circle className="field-mark field-center-circle inner" cx="50" cy="50" r="1.6" />
-        <path className="field-mark field-fifty" d="M 12 24 C 26 38, 74 38, 88 24" />
-        <path className="field-mark field-fifty" d="M 12 76 C 26 62, 74 62, 88 76" />
       </g>
     </svg>
   );
