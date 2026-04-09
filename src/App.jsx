@@ -141,6 +141,33 @@ function getNextCustomLabel(team, players) {
   return `${prefix}${next}`;
 }
 
+function getImportedNames(text) {
+  return text
+    .split(/\r?\n/)
+    .map((value) => value.trim())
+    .filter(Boolean);
+}
+
+function getListedPlayerPosition(index, total) {
+  const columns = total <= 3 ? total : total <= 8 ? 4 : total <= 15 ? 5 : 6;
+  const columnSets = {
+    1: [50],
+    2: [34, 66],
+    3: [20, 50, 80],
+    4: [18, 40, 60, 82],
+    5: [14, 30, 50, 70, 86],
+    6: [10, 26, 42, 58, 74, 90],
+  };
+  const slots = columnSets[columns] || columnSets[5];
+  const row = Math.floor(index / columns);
+  const rows = Math.max(1, Math.ceil(total / columns));
+  const y = rows === 1 ? 70 : 18 + (row * 104) / (rows - 1);
+  return {
+    x: slots[index % columns],
+    y: clamp(y, 10, 130),
+  };
+}
+
 function buildFeedback(players, ball, selectedScenario) {
   const us = players.filter((p) => p.team === 'us');
   const opp = players.filter((p) => p.team === 'opp');
@@ -383,6 +410,9 @@ export default function App() {
       setPlayers(lastAction.players);
       setCustomLines(lastAction.lines);
       setSelectedId(lastAction.previousSelectedId || lastAction.players[0]?.id || 'M2');
+    } else if (lastAction.type === 'add-listed-players') {
+      setPlayers((current) => current.filter((player) => !lastAction.players.some((added) => added.id === player.id)));
+      setSelectedId(lastAction.previousSelectedId || 'M2');
     }
     setUndoStack((current) => current.slice(0, -1));
   }
@@ -417,12 +447,30 @@ export default function App() {
   }
 
   function importPlayerNames() {
-    const names = nameImportText
-      .split(/\r?\n/)
-      .map((value) => value.trim())
-      .filter(Boolean);
+    const names = getImportedNames(nameImportText);
     if (!names.length) return;
     setPlayers((current) => current.map((player, index) => (names[index] ? { ...player, name: names[index] } : player)));
+  }
+
+  function addListedPlayers() {
+    const names = getImportedNames(nameImportText);
+    if (!names.length) return;
+    const createdPlayers = [];
+    names.forEach((name, index) => {
+      const label = getNextCustomLabel('us', [...players, ...createdPlayers]);
+      const position = getListedPlayerPosition(index, names.length);
+      createdPlayers.push({
+        id: `us-${Date.now()}-${index}-${Math.random().toString(36).slice(2, 6)}`,
+        label,
+        team: 'us',
+        name,
+        x: position.x,
+        y: position.y,
+      });
+    });
+    setPlayers((current) => [...current, ...createdPlayers]);
+    setSelectedId(createdPlayers[createdPlayers.length - 1]?.id || selectedId);
+    setUndoStack((current) => [...current, { type: 'add-listed-players', players: createdPlayers, previousSelectedId: selectedId }]);
   }
 
   function resetBoard() {
@@ -505,6 +553,7 @@ export default function App() {
             <textarea className="name-import" value={nameImportText} onChange={(event) => setNameImportText(event.target.value)} placeholder="Paste one name per line, in roster order." />
             <div className="controls-row" style={{ marginTop: '10px' }}>
               <button onClick={importPlayerNames}>Import names</button>
+              <button onClick={addListedPlayers}>Add all listed</button>
               <button onClick={() => setNameImportText('')}>Clear import</button>
             </div>
           </section>

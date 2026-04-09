@@ -19,6 +19,7 @@ Progress:
 - Removed the extra helper copy from the player-names panel so the UI stays lean for personal use.
 - Replaced the always-visible header strip with a compact expandable menu.
 - Removed the preset phase builder and coach feedback panels from the sidebar.
+- Added a batch action to place every imported name onto the field as its own player chip.
 
 Notes:
 - Resetting or changing presets clears the undo stack.
