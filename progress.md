@@ -25,6 +25,7 @@ Progress:
 - Fixed the center marking so it renders as a square instead of a rectangle.
 - Shifted the oval farther left and removed the extra horizontal guide lines to declutter the field.
 - Narrowed the oval again so it reads more like a true AFL oval and less like a circle.
+- Imported players and names now persist in browser localStorage so the roster survives refreshes on the same device.
 
 Notes:
 - Resetting or changing presets clears the undo stack.

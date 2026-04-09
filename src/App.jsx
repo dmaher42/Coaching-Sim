@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 
 const FIELD_HEIGHT = 140;
+const BOARD_STORAGE_KEY = 'afl-sim-coach-board-v1';
+const DEFAULT_CUSTOM_NOTE = 'Use this board to drag players into shape. Start with one kick, then talk through the next two movements.';
 
 const TEAM_COLOURS = {
   us: '#1d4ed8',
@@ -148,6 +150,39 @@ function getImportedNames(text) {
     .filter(Boolean);
 }
 
+function createDefaultPlayers() {
+  return centreBouncePlayers.map((player) => ({ ...player, name: '' }));
+}
+
+function cloneSavedPlayer(player) {
+  if (!player || typeof player !== 'object') return null;
+  return {
+    ...player,
+    name: typeof player.name === 'string' ? player.name : '',
+  };
+}
+
+function readSavedBoardState() {
+  if (typeof window === 'undefined') return null;
+  try {
+    const raw = window.localStorage.getItem(BOARD_STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    const players = Array.isArray(parsed.players) ? parsed.players.map(cloneSavedPlayer).filter(Boolean) : null;
+    return {
+      players: players && players.length ? players : createDefaultPlayers(),
+      ball: parsed.ball && typeof parsed.ball.x === 'number' && typeof parsed.ball.y === 'number'
+        ? { x: clamp(parsed.ball.x, 2, 98), y: clamp(parsed.ball.y, 2, FIELD_HEIGHT - 2) }
+        : { ...centreBounceBall },
+      selectedId: typeof parsed.selectedId === 'string' ? parsed.selectedId : 'M2',
+      customLines: Array.isArray(parsed.customLines) ? parsed.customLines : [],
+      customNote: typeof parsed.customNote === 'string' ? parsed.customNote : DEFAULT_CUSTOM_NOTE,
+    };
+  } catch {
+    return null;
+  }
+}
+
 function getListedPlayerPosition(index, total) {
   const columns = total <= 3 ? total : total <= 8 ? 4 : total <= 15 ? 5 : 6;
   const columnSets = {
@@ -262,16 +297,17 @@ function FieldMarkings() {
 
 export default function App() {
   const fieldRef = useRef(null);
-  const [players, setPlayers] = useState(centreBouncePlayers);
-  const [ball, setBall] = useState(centreBounceBall);
-  const [selectedId, setSelectedId] = useState('M2');
+  const [savedBoardState] = useState(readSavedBoardState);
+  const [players, setPlayers] = useState(savedBoardState?.players ?? createDefaultPlayers());
+  const [ball, setBall] = useState(savedBoardState?.ball ?? centreBounceBall);
+  const [selectedId, setSelectedId] = useState(savedBoardState?.selectedId ?? 'M2');
   const [showControls, setShowControls] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
-  const [customLines, setCustomLines] = useState([]);
+  const [customLines, setCustomLines] = useState(savedBoardState?.customLines ?? []);
   const [lineStartId, setLineStartId] = useState(null);
   const [lineType, setLineType] = useState('us');
   const [pendingLinePoint, setPendingLinePoint] = useState(null);
-  const [customNote, setCustomNote] = useState('Use this board to drag players into shape. Start with one kick, then talk through the next two movements.');
+  const [customNote, setCustomNote] = useState(savedBoardState?.customNote ?? DEFAULT_CUSTOM_NOTE);
   const [nameDraft, setNameDraft] = useState('');
   const [nameImportText, setNameImportText] = useState('');
   const [undoStack, setUndoStack] = useState([]);
@@ -280,6 +316,29 @@ export default function App() {
   useEffect(() => {
     setNameDraft(selectedPlayer?.name || '');
   }, [selectedPlayer?.id, selectedPlayer?.name]);
+
+  useEffect(() => {
+    if (players.length > 0 && !players.some((player) => player.id === selectedId)) {
+      setSelectedId(players[0].id);
+    }
+  }, [players, selectedId]);
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(
+        BOARD_STORAGE_KEY,
+        JSON.stringify({
+          players,
+          ball,
+          selectedId,
+          customLines,
+          customNote,
+        }),
+      );
+    } catch {
+      // Ignore storage failures and keep the board usable.
+    }
+  }, [players, ball, selectedId, customLines, customNote]);
 
   function updateFromPointer(clientX, clientY, targetId) {
     const rect = fieldRef.current?.getBoundingClientRect(); if (!rect) return;
@@ -469,9 +528,9 @@ export default function App() {
   }
 
   function resetBoard() {
-    setPlayers(centreBouncePlayers.map((p) => ({ ...p, name: '' })));
+    setPlayers(createDefaultPlayers());
     setBall({ ...centreBounceBall });
-    setCustomNote('Use this board to drag players into shape. Start with one kick, then talk through the next two movements.');
+    setCustomNote(DEFAULT_CUSTOM_NOTE);
     setSelectedId('M2');
     setCustomLines([]);
     setLineStartId(null);
