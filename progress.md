@@ -17,6 +17,7 @@ Progress:
 - Rotated the field layout to a tall portrait oval so it runs up and down the screen.
 - Added player names with single-player writing and bulk import by pasted name list.
 - Removed the extra helper copy from the player-names panel so the UI stays lean for personal use.
+- Replaced the always-visible header strip with a compact expandable menu.
 
 Notes:
 - Resetting or changing presets clears the undo stack.

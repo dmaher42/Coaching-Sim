@@ -247,6 +247,7 @@ export default function App() {
   const [phaseIndex, setPhaseIndex] = useState(0);
   const [showArrows, setShowArrows] = useState(true);
   const [showControls, setShowControls] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
   const [customLines, setCustomLines] = useState([]);
   const [lineStartId, setLineStartId] = useState(null);
   const [lineType, setLineType] = useState('us');
@@ -439,22 +440,28 @@ export default function App() {
   function resetBoard() { applyPreset(scenario); }
   function prevPhase() { setPhaseIndex((current) => Math.max(0, current - 1)); }
   function nextPhase() { setPhaseIndex((current) => Math.min(phases.length - 1, current + 1)); }
+  function runPreset(key) {
+    applyPreset(key);
+    setShowMenu(false);
+  }
 
   const pendingLine = lineStartId && pendingLinePoint ? { from: lineStartId, to: pendingLinePoint, color: lineType, pending: true } : null;
   const allVisibleArrows = [...(activePhase?.arrows || []), ...customLines];
 
   return (
     <div className="app-shell">
-      <header className="topbar">
-        <div><h1>AFL Sim Coach</h1><p>Drag the players. Move the ball. Test whether your shape still works.</p></div>
-        <div className="topbar-actions">
-          <button onClick={() => applyPreset('centreBounce')}>Centre Bounce</button>
-          <button onClick={() => applyPreset('kickoutBoundary')}>Kick-out shape</button>
-          <button onClick={() => applyPreset('boundaryChain')}>Second-kick shape</button>
-          <button onClick={resetBoard}>Reset</button>
-          <button onClick={() => setShowControls((value) => !value)}>{showControls ? 'Hide controls' : 'Controls'}</button>
+      <button className="menu-toggle" onClick={() => setShowMenu((value) => !value)} aria-expanded={showMenu} aria-controls="app-menu">
+        {showMenu ? 'Close menu' : 'Menu'}
+      </button>
+      {showMenu && (
+        <div className="menu-popover" id="app-menu">
+          <button onClick={() => runPreset('centreBounce')}>Centre Bounce</button>
+          <button onClick={() => runPreset('kickoutBoundary')}>Kick-out shape</button>
+          <button onClick={() => runPreset('boundaryChain')}>Second-kick shape</button>
+          <button onClick={() => { resetBoard(); setShowMenu(false); }}>Reset</button>
+          <button onClick={() => { setShowControls((value) => !value); setShowMenu(false); }}>{showControls ? 'Hide controls' : 'Controls'}</button>
         </div>
-      </header>
+      )}
 
       <main className="layout-grid">
         <section className="board-panel card">
