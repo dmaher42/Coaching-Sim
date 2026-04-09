@@ -18,6 +18,7 @@ Progress:
 - Added player names with single-player writing and bulk import by pasted name list.
 - Removed the extra helper copy from the player-names panel so the UI stays lean for personal use.
 - Replaced the always-visible header strip with a compact expandable menu.
+- Removed the preset phase builder and coach feedback panels from the sidebar.
 
 Notes:
 - Resetting or changing presets clears the undo stack.

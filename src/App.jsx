@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 const FIELD_HEIGHT = 140;
 
@@ -184,11 +184,11 @@ function PlayerChip({ player, onPointerDown, onDoubleClick, selected, roleHint }
   return <button type="button" className={`player-chip ${selected ? 'selected' : ''} ${player.team}`} style={{ left: `${player.x}%`, top: `${(player.y / FIELD_HEIGHT) * 100}%`, width: `${width}px`, height: `${size}px`, background: TEAM_COLOURS[player.team] }} onPointerDown={onPointerDown} onDoubleClick={onDoubleClick} title={player.name ? `${roleHint} · ${player.name}` : roleHint}>{displayLabel}</button>;
 }
 
-function MovementOverlay({ players, arrows, show, pendingLine }) {
-  if (!show && !pendingLine) return null;
+function MovementOverlay({ players, arrows, pendingLine }) {
+  if (!arrows.length && !pendingLine) return null;
   const byId = Object.fromEntries(players.map((p) => [p.id, p]));
   const resolvePoint = (value) => (typeof value === 'string' ? byId[value] : value);
-  const allArrows = [...(show ? arrows : []), ...(pendingLine ? [pendingLine] : [])];
+  const allArrows = [...arrows, ...(pendingLine ? [pendingLine] : [])];
   return (
     <svg className="movement-overlay" viewBox="0 0 100 100" preserveAspectRatio="none">
       <defs>
@@ -243,9 +243,6 @@ export default function App() {
   const [players, setPlayers] = useState(centreBouncePlayers);
   const [ball, setBall] = useState(centreBounceBall);
   const [selectedId, setSelectedId] = useState('M2');
-  const [scenario, setScenario] = useState('centreBounce');
-  const [phaseIndex, setPhaseIndex] = useState(0);
-  const [showArrows, setShowArrows] = useState(true);
   const [showControls, setShowControls] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const [customLines, setCustomLines] = useState([]);
@@ -257,9 +254,6 @@ export default function App() {
   const [nameImportText, setNameImportText] = useState('');
   const [undoStack, setUndoStack] = useState([]);
   const selectedPlayer = players.find((p) => p.id === selectedId) || null;
-  const feedback = useMemo(() => buildFeedback(players, ball, scenario), [players, ball, scenario]);
-  const phases = phaseTemplates[scenario] || [];
-  const activePhase = phases[phaseIndex] || null;
 
   useEffect(() => {
     setNameDraft(selectedPlayer?.name || '');
@@ -315,12 +309,6 @@ export default function App() {
     const point = getFieldPoint(event.clientX, event.clientY);
     if (!point) return;
     addPlayer('us', point);
-  }
-
-  function applyPreset(key) {
-    const preset = presets[key]; setScenario(key); setPhaseIndex(0);
-    setPlayers(preset.players.map((p) => ({ ...p, name: '' }))); setBall({ ...preset.ball }); setCustomNote(preset.notes); setSelectedId('M2');
-    setCustomLines([]); setLineStartId(null); setPendingLinePoint(null); setUndoStack([]);
   }
 
   function addPlayer(team, point = null) {
@@ -437,16 +425,18 @@ export default function App() {
     setPlayers((current) => current.map((player, index) => (names[index] ? { ...player, name: names[index] } : player)));
   }
 
-  function resetBoard() { applyPreset(scenario); }
-  function prevPhase() { setPhaseIndex((current) => Math.max(0, current - 1)); }
-  function nextPhase() { setPhaseIndex((current) => Math.min(phases.length - 1, current + 1)); }
-  function runPreset(key) {
-    applyPreset(key);
-    setShowMenu(false);
+  function resetBoard() {
+    setPlayers(centreBouncePlayers.map((p) => ({ ...p, name: '' })));
+    setBall({ ...centreBounceBall });
+    setCustomNote('Use this board to drag players into shape. Start with one kick, then talk through the next two movements.');
+    setSelectedId('M2');
+    setCustomLines([]);
+    setLineStartId(null);
+    setPendingLinePoint(null);
+    setUndoStack([]);
   }
 
   const pendingLine = lineStartId && pendingLinePoint ? { from: lineStartId, to: pendingLinePoint, color: lineType, pending: true } : null;
-  const allVisibleArrows = [...(activePhase?.arrows || []), ...customLines];
 
   return (
     <div className="app-shell">
@@ -455,9 +445,6 @@ export default function App() {
       </button>
       {showMenu && (
         <div className="menu-popover" id="app-menu">
-          <button onClick={() => runPreset('centreBounce')}>Centre Bounce</button>
-          <button onClick={() => runPreset('kickoutBoundary')}>Kick-out shape</button>
-          <button onClick={() => runPreset('boundaryChain')}>Second-kick shape</button>
           <button onClick={() => { resetBoard(); setShowMenu(false); }}>Reset</button>
           <button onClick={() => { setShowControls((value) => !value); setShowMenu(false); }}>{showControls ? 'Hide controls' : 'Controls'}</button>
         </div>
@@ -470,7 +457,7 @@ export default function App() {
               <div className="field-overlay">
                 <FieldMarkings />
               </div>
-              <MovementOverlay players={[...players, { id: 'ball', x: ball.x, y: ball.y }]} arrows={allVisibleArrows} show={showArrows} pendingLine={pendingLine} />
+              <MovementOverlay players={[...players, { id: 'ball', x: ball.x, y: ball.y }]} arrows={customLines} pendingLine={pendingLine} />
               {players.map((player) => <PlayerChip key={player.id} player={player} selected={selectedId === player.id} roleHint={roleDescriptions[player.label] || roleDescriptions[player.id] || player.label} onPointerDown={(event) => startDrag(event, player.id)} onDoubleClick={() => removePlayerById(player.id)} />)}
               <PlayerChip player={{ id: 'ball', label: '', team: 'ball', x: ball.x, y: ball.y }} selected={selectedId === 'ball'} roleHint="Ball" onPointerDown={(event) => startDrag(event, 'ball')} />
             </div>
@@ -478,17 +465,6 @@ export default function App() {
         </section>
 
         {showControls && <aside className="side-panel">
-          <section className="card">
-            <h2>Phase builder</h2>
-            <p className="muted">{activePhase ? `${activePhase.name} · ${phaseIndex + 1}/${phases.length}` : 'No phases for this scenario yet.'}</p>
-            <p className="position-readout">{activePhase?.note || 'Choose a preset to view the movement pattern.'}</p>
-            <div className="topbar-actions" style={{ marginTop: '10px' }}>
-              <button onClick={prevPhase} disabled={phaseIndex === 0}>Prev</button>
-              <button onClick={nextPhase} disabled={phaseIndex >= phases.length - 1}>Next</button>
-              <button onClick={() => setShowArrows((value) => !value)}>{showArrows ? 'Hide arrows' : 'Show arrows'}</button>
-            </div>
-          </section>
-
           <section className="card">
             <h2>Player tools</h2>
             <p className="muted">Double-click a player to remove them. Double-click open field space to add a teammate. Undo restores the last change.</p>
@@ -531,11 +507,6 @@ export default function App() {
               <button onClick={importPlayerNames}>Import names</button>
               <button onClick={() => setNameImportText('')}>Clear import</button>
             </div>
-          </section>
-
-          <section className="card">
-            <h2>Coach feedback</h2>
-            <div className="feedback-list">{feedback.map((item, index) => <div key={`${item.level}-${index}`} className={`feedback-item ${item.level}`}><strong>{item.level === 'good' ? 'Working' : 'Check'}</strong><p>{item.text}</p></div>)}</div>
           </section>
 
           <section className="card">
