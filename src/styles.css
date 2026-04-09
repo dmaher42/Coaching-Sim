@@ -149,7 +149,7 @@ textarea {
 
 .field {
   position: relative;
-  width: min(66vw, 680px);
+  width: min(72vw, 760px);
   height: var(--field-height);
   overflow: hidden;
   --field-height: min(98dvh, 1080px);
@@ -167,6 +167,7 @@ textarea {
   box-shadow:
     inset 0 0 0 1px rgba(255,255,255,0.04),
     0 18px 36px rgba(0,0,0,0.26);
+  margin-left: -3vw;
   margin-inline: auto;
   z-index: 2;
 }
@@ -418,6 +419,7 @@ li + li {
   .field {
     width: min(90vw, 620px);
     --field-height: min(84dvh, 760px);
+    margin-left: 0;
   }
 
   .side-panel {

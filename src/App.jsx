@@ -243,8 +243,6 @@ function FieldMarkings() {
       </defs>
       <g clipPath="url(#field-clip)">
         <line className="field-mark field-center-line" x1="50" y1="0" x2="50" y2="100" />
-        <line className="field-mark field-guide" x1="0" y1="31" x2="100" y2="31" />
-        <line className="field-mark field-guide" x1="0" y1="69" x2="100" y2="69" />
         <path className="field-mark field-arc" d="M 11 20 C 24 37, 76 37, 89 20" />
         <path className="field-mark field-arc" d="M 11 80 C 24 63, 76 63, 89 80" />
         <rect className="field-mark field-goal-square" x="44.5" y="0" width="11" height="8.5" />
