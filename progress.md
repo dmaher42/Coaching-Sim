@@ -24,6 +24,7 @@ Progress:
 - Shifted the oval left, removed the extra 50m arc decoration, and made player chips rounded rectangles.
 - Fixed the center marking so it renders as a square instead of a rectangle.
 - Shifted the oval farther left and removed the extra horizontal guide lines to declutter the field.
+- Narrowed the oval again so it reads more like a true AFL oval and less like a circle.
 
 Notes:
 - Resetting or changing presets clears the undo stack.

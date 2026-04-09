@@ -149,7 +149,7 @@ textarea {
 
 .field {
   position: relative;
-  width: min(72vw, 760px);
+  width: min(58vw, 700px);
   height: var(--field-height);
   overflow: hidden;
   --field-height: min(98dvh, 1080px);
@@ -162,8 +162,8 @@ textarea {
       #8fd665 17%
   );
   border: none;
-  clip-path: ellipse(44.8% 49.8% at 50% 50%);
-  -webkit-clip-path: ellipse(44.8% 49.8% at 50% 50%);
+  clip-path: ellipse(38.2% 49.8% at 50% 50%);
+  -webkit-clip-path: ellipse(38.2% 49.8% at 50% 50%);
   box-shadow:
     inset 0 0 0 1px rgba(255,255,255,0.04),
     0 18px 36px rgba(0,0,0,0.26);
@@ -191,8 +191,8 @@ textarea {
   position: absolute;
   inset: 0.6%;
   border: 2px solid rgba(0,0,0,0.66);
-  clip-path: ellipse(44.1% 49.2% at 50% 50%);
-  -webkit-clip-path: ellipse(44.1% 49.2% at 50% 50%);
+  clip-path: ellipse(37.6% 49.2% at 50% 50%);
+  -webkit-clip-path: ellipse(37.6% 49.2% at 50% 50%);
   pointer-events: none;
 }
 
