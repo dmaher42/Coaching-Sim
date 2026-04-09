@@ -149,7 +149,7 @@ textarea {
 
 .field {
   position: relative;
-  width: min(72vw, 720px);
+  width: min(66vw, 680px);
   height: var(--field-height);
   overflow: hidden;
   --field-height: min(98dvh, 1080px);
@@ -162,8 +162,8 @@ textarea {
       #8fd665 17%
   );
   border: none;
-  clip-path: ellipse(48.2% 49.8% at 50% 50%);
-  -webkit-clip-path: ellipse(48.2% 49.8% at 50% 50%);
+  clip-path: ellipse(44.8% 49.8% at 50% 50%);
+  -webkit-clip-path: ellipse(44.8% 49.8% at 50% 50%);
   box-shadow:
     inset 0 0 0 1px rgba(255,255,255,0.04),
     0 18px 36px rgba(0,0,0,0.26);
@@ -190,8 +190,8 @@ textarea {
   position: absolute;
   inset: 0.6%;
   border: 2px solid rgba(0,0,0,0.66);
-  clip-path: ellipse(47.8% 49.2% at 50% 50%);
-  -webkit-clip-path: ellipse(47.8% 49.2% at 50% 50%);
+  clip-path: ellipse(44.1% 49.2% at 50% 50%);
+  -webkit-clip-path: ellipse(44.1% 49.2% at 50% 50%);
   pointer-events: none;
 }
 
@@ -228,11 +228,12 @@ textarea {
   width: 100%;
   height: 100%;
   pointer-events: none;
+  shape-rendering: geometricPrecision;
 }
 
 .field-mark {
   fill: none;
-  stroke: rgba(18, 38, 18, 0.82);
+  stroke: rgba(18, 38, 18, 0.92);
   stroke-linecap: round;
   stroke-linejoin: round;
   vector-effect: non-scaling-stroke;
@@ -240,34 +241,34 @@ textarea {
 
 .field-center-line,
 .field-guide {
-  stroke-width: 0.35;
+  stroke-width: 0.58;
 }
 
 .field-guide {
-  stroke-dasharray: 1.4 1.4;
-  stroke: rgba(220, 65, 65, 0.7);
+  stroke-dasharray: 1.8 1.6;
+  stroke: rgba(220, 65, 65, 0.85);
 }
 
 .field-arc,
 .field-fifty {
-  stroke-width: 0.65;
+  stroke-width: 0.98;
 }
 
 .field-goal-square,
 .field-center-square {
-  stroke-width: 0.75;
+  stroke-width: 1.05;
 }
 
 .field-goal-post {
-  stroke-width: 0.45;
+  stroke-width: 0.72;
 }
 
 .field-center-circle {
-  stroke-width: 0.6;
+  stroke-width: 0.82;
 }
 
 .field-center-circle.inner {
-  stroke-width: 0.35;
+  stroke-width: 0.52;
 }
 
 .player-chip {

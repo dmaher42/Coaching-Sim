@@ -238,28 +238,28 @@ function FieldMarkings() {
     <svg className="field-markings" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
       <defs>
         <clipPath id="field-clip">
-          <ellipse cx="50" cy="50" rx="48.2" ry="49.8" />
+          <ellipse cx="50" cy="50" rx="44.8" ry="49.8" />
         </clipPath>
       </defs>
       <g clipPath="url(#field-clip)">
         <line className="field-mark field-center-line" x1="50" y1="0" x2="50" y2="100" />
-        <line className="field-mark field-guide" x1="0" y1="30" x2="100" y2="30" />
-        <line className="field-mark field-guide" x1="0" y1="70" x2="100" y2="70" />
-        <path className="field-mark field-arc" d="M 16 16 C 30 28, 70 28, 84 16" />
-        <path className="field-mark field-arc" d="M 16 84 C 30 72, 70 72, 84 84" />
-        <rect className="field-mark field-goal-square" x="45" y="0" width="10" height="8" />
-        <rect className="field-mark field-goal-square" x="45" y="92" width="10" height="8" />
-        <line className="field-mark field-goal-post" x1="40" y1="0" x2="40" y2="8" />
-        <line className="field-mark field-goal-post" x1="50" y1="0" x2="50" y2="8" />
-        <line className="field-mark field-goal-post" x1="60" y1="0" x2="60" y2="8" />
-        <line className="field-mark field-goal-post" x1="40" y1="92" x2="40" y2="100" />
-        <line className="field-mark field-goal-post" x1="50" y1="92" x2="50" y2="100" />
-        <line className="field-mark field-goal-post" x1="60" y1="92" x2="60" y2="100" />
-        <rect className="field-mark field-center-square" x="23.5" y="35" width="53" height="30" />
-        <circle className="field-mark field-center-circle" cx="50" cy="50" r="3.8" />
-        <circle className="field-mark field-center-circle inner" cx="50" cy="50" r="1.4" />
-        <path className="field-mark field-fifty" d="M 14 25 C 28 38, 72 38, 86 25" />
-        <path className="field-mark field-fifty" d="M 14 75 C 28 62, 72 62, 86 75" />
+        <line className="field-mark field-guide" x1="0" y1="31" x2="100" y2="31" />
+        <line className="field-mark field-guide" x1="0" y1="69" x2="100" y2="69" />
+        <path className="field-mark field-arc" d="M 11 20 C 24 37, 76 37, 89 20" />
+        <path className="field-mark field-arc" d="M 11 80 C 24 63, 76 63, 89 80" />
+        <rect className="field-mark field-goal-square" x="44.5" y="0" width="11" height="8.5" />
+        <rect className="field-mark field-goal-square" x="44.5" y="91.5" width="11" height="8.5" />
+        <line className="field-mark field-goal-post" x1="38.5" y1="0" x2="38.5" y2="8.5" />
+        <line className="field-mark field-goal-post" x1="50" y1="0" x2="50" y2="8.5" />
+        <line className="field-mark field-goal-post" x1="61.5" y1="0" x2="61.5" y2="8.5" />
+        <line className="field-mark field-goal-post" x1="38.5" y1="91.5" x2="38.5" y2="100" />
+        <line className="field-mark field-goal-post" x1="50" y1="91.5" x2="50" y2="100" />
+        <line className="field-mark field-goal-post" x1="61.5" y1="91.5" x2="61.5" y2="100" />
+        <rect className="field-mark field-center-square" x="24" y="35" width="52" height="30" />
+        <circle className="field-mark field-center-circle" cx="50" cy="50" r="4.2" />
+        <circle className="field-mark field-center-circle inner" cx="50" cy="50" r="1.6" />
+        <path className="field-mark field-fifty" d="M 12 24 C 26 38, 74 38, 88 24" />
+        <path className="field-mark field-fifty" d="M 12 76 C 26 62, 74 62, 88 76" />
       </g>
     </svg>
   );

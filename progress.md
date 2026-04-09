@@ -20,6 +20,7 @@ Progress:
 - Replaced the always-visible header strip with a compact expandable menu.
 - Removed the preset phase builder and coach feedback panels from the sidebar.
 - Added a batch action to place every imported name onto the field as its own player chip.
+- Sharpened the oval toward a more AFL-like shape and made the field markings bolder.
 
 Notes:
 - Resetting or changing presets clears the undo stack.
