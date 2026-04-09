@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 
 const FIELD_HEIGHT = 140;
 
@@ -178,7 +178,10 @@ function buildFeedback(players, ball, selectedScenario) {
 
 function PlayerChip({ player, onPointerDown, onDoubleClick, selected, roleHint }) {
   const size = player.team === 'ball' ? 18 : 34;
-  return <button type="button" className={`player-chip ${selected ? 'selected' : ''} ${player.team}`} style={{ left: `${player.x}%`, top: `${(player.y / FIELD_HEIGHT) * 100}%`, width: `${size}px`, height: `${size}px`, background: TEAM_COLOURS[player.team] }} onPointerDown={onPointerDown} onDoubleClick={onDoubleClick} title={roleHint}>{player.label}</button>;
+  const displayLabel = (player.name || player.label || '').trim();
+  const dynamicSize = player.team === 'ball' ? 18 : Math.max(34, Math.min(78, 14 + displayLabel.length * 5));
+  const width = player.team === 'ball' ? size : dynamicSize;
+  return <button type="button" className={`player-chip ${selected ? 'selected' : ''} ${player.team}`} style={{ left: `${player.x}%`, top: `${(player.y / FIELD_HEIGHT) * 100}%`, width: `${width}px`, height: `${size}px`, background: TEAM_COLOURS[player.team] }} onPointerDown={onPointerDown} onDoubleClick={onDoubleClick} title={player.name ? `${roleHint} · ${player.name}` : roleHint}>{displayLabel}</button>;
 }
 
 function MovementOverlay({ players, arrows, show, pendingLine }) {
@@ -249,11 +252,17 @@ export default function App() {
   const [lineType, setLineType] = useState('us');
   const [pendingLinePoint, setPendingLinePoint] = useState(null);
   const [customNote, setCustomNote] = useState('Use this board to drag players into shape. Start with one kick, then talk through the next two movements.');
+  const [nameDraft, setNameDraft] = useState('');
+  const [nameImportText, setNameImportText] = useState('');
   const [undoStack, setUndoStack] = useState([]);
   const selectedPlayer = players.find((p) => p.id === selectedId) || null;
   const feedback = useMemo(() => buildFeedback(players, ball, scenario), [players, ball, scenario]);
   const phases = phaseTemplates[scenario] || [];
   const activePhase = phases[phaseIndex] || null;
+
+  useEffect(() => {
+    setNameDraft(selectedPlayer?.name || '');
+  }, [selectedPlayer?.id, selectedPlayer?.name]);
 
   function updateFromPointer(clientX, clientY, targetId) {
     const rect = fieldRef.current?.getBoundingClientRect(); if (!rect) return;
@@ -309,7 +318,7 @@ export default function App() {
 
   function applyPreset(key) {
     const preset = presets[key]; setScenario(key); setPhaseIndex(0);
-    setPlayers(preset.players.map((p) => ({ ...p }))); setBall({ ...preset.ball }); setCustomNote(preset.notes); setSelectedId('M2');
+    setPlayers(preset.players.map((p) => ({ ...p, name: '' }))); setBall({ ...preset.ball }); setCustomNote(preset.notes); setSelectedId('M2');
     setCustomLines([]); setLineStartId(null); setPendingLinePoint(null); setUndoStack([]);
   }
 
@@ -321,6 +330,7 @@ export default function App() {
       id,
       label,
       team,
+      name: '',
       x: point?.x ?? (count % 2 === 0 ? 46 : 54),
       y: point?.y ?? (team === 'us' ? 86 : 54),
     };
@@ -411,6 +421,21 @@ export default function App() {
     setPendingLinePoint(null);
   }
 
+  function saveSelectedName() {
+    if (!selectedPlayer) return;
+    const nextName = nameDraft.trim();
+    setPlayers((current) => current.map((player) => (player.id === selectedPlayer.id ? { ...player, name: nextName } : player)));
+  }
+
+  function importPlayerNames() {
+    const names = nameImportText
+      .split(/\r?\n/)
+      .map((value) => value.trim())
+      .filter(Boolean);
+    if (!names.length) return;
+    setPlayers((current) => current.map((player, index) => (names[index] ? { ...player, name: names[index] } : player)));
+  }
+
   function resetBoard() { applyPreset(scenario); }
   function prevPhase() { setPhaseIndex((current) => Math.max(0, current - 1)); }
   function nextPhase() { setPhaseIndex((current) => Math.min(phases.length - 1, current + 1)); }
@@ -485,8 +510,22 @@ export default function App() {
 
           <section className="card">
             <h2>Selected role</h2>
-            {selectedPlayer ? <><div className="role-pill">{selectedPlayer.label}</div><p className="muted">{roleDescriptions[selectedPlayer.label] || roleDescriptions[selectedPlayer.id] || 'Custom player.'}</p><p className="position-readout">Lane {getLane(selectedPlayer.x)}</p></> : <p className="muted">Select a player chip to inspect their role.</p>}
-            </section>
+            {selectedPlayer ? <><div className="role-pill">{selectedPlayer.name || selectedPlayer.label}</div><p className="muted">{roleDescriptions[selectedPlayer.label] || roleDescriptions[selectedPlayer.id] || 'Custom player.'}</p><p className="position-readout">Role {selectedPlayer.label} · Lane {getLane(selectedPlayer.x)}</p></> : <p className="muted">Select a player chip to inspect their role.</p>}
+          </section>
+
+          <section className="card">
+            <h2>Player names</h2>
+            <p className="muted">Write a name for the selected player, or paste one name per line and import them in roster order.</p>
+            <div className="name-row">
+              <input type="text" value={nameDraft} onChange={(event) => setNameDraft(event.target.value)} placeholder="Selected player name" />
+              <button onClick={saveSelectedName} disabled={!selectedPlayer}>Write name</button>
+            </div>
+            <textarea className="name-import" value={nameImportText} onChange={(event) => setNameImportText(event.target.value)} placeholder="Paste one name per line, in roster order." />
+            <div className="controls-row" style={{ marginTop: '10px' }}>
+              <button onClick={importPlayerNames}>Import names</button>
+              <button onClick={() => setNameImportText('')}>Clear import</button>
+            </div>
+          </section>
 
           <section className="card">
             <h2>Coach feedback</h2>

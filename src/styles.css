@@ -28,6 +28,11 @@ button:disabled {
   cursor: not-allowed;
 }
 
+input,
+textarea {
+  font: inherit;
+}
+
 .app-shell {
   height: 100dvh;
   padding: 0;
@@ -258,6 +263,10 @@ button:disabled {
   place-items: center;
   font-weight: 700;
   font-size: 11px;
+  padding: 0 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   touch-action: none;
   box-shadow: 0 6px 16px rgba(0,0,0,0.25);
   z-index: 3;
@@ -299,6 +308,27 @@ button:disabled {
   background: rgba(255,255,255,0.08);
   font-weight: 700;
   margin-bottom: 8px;
+}
+
+.name-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.name-row input {
+  flex: 1;
+  min-width: 0;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.04);
+  color: #f5fff7;
+  padding: 10px 12px;
+}
+
+.name-import {
+  margin-top: 10px;
 }
 
 .position-readout {
