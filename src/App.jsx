@@ -255,7 +255,7 @@ function FieldMarkings() {
         <line className="field-mark field-goal-post" x1="38.5" y1="91.5" x2="38.5" y2="100" />
         <line className="field-mark field-goal-post" x1="50" y1="91.5" x2="50" y2="100" />
         <line className="field-mark field-goal-post" x1="61.5" y1="91.5" x2="61.5" y2="100" />
-        <rect className="field-mark field-center-square" x="24" y="35" width="52" height="30" />
+        <rect className="field-mark field-center-square" x="35" y="35" width="30" height="30" />
         <circle className="field-mark field-center-circle" cx="50" cy="50" r="4.2" />
         <circle className="field-mark field-center-circle inner" cx="50" cy="50" r="1.6" />
       </g>

@@ -22,6 +22,7 @@ Progress:
 - Added a batch action to place every imported name onto the field as its own player chip.
 - Sharpened the oval toward a more AFL-like shape and made the field markings bolder.
 - Shifted the oval left, removed the extra 50m arc decoration, and made player chips rounded rectangles.
+- Fixed the center marking so it renders as a square instead of a rectangle.
 
 Notes:
 - Resetting or changing presets clears the undo stack.
