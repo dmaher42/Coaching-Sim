@@ -515,7 +515,6 @@ export default function App() {
 
           <section className="card">
             <h2>Player names</h2>
-            <p className="muted">Write a name for the selected player, or paste one name per line and import them in roster order.</p>
             <div className="name-row">
               <input type="text" value={nameDraft} onChange={(event) => setNameDraft(event.target.value)} placeholder="Selected player name" />
               <button onClick={saveSelectedName} disabled={!selectedPlayer}>Write name</button>
