@@ -29,6 +29,7 @@ Progress:
 - Added a simple cross-device sync link so the current board state can be copied from one device and opened on another.
 - Broadened the mobile oval and reduced its height so it reads less compacted on phone screens.
 - Moved the mobile controls panel below the field so it no longer overlays the oval.
+- Added a small confirmation toast for the sync-link copy action so it does not fail silently.
 
 Notes:
 - Resetting or changing presets clears the undo stack.

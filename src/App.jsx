@@ -369,6 +369,7 @@ export default function App() {
   const [nameDraft, setNameDraft] = useState('');
   const [nameImportText, setNameImportText] = useState('');
   const [undoStack, setUndoStack] = useState([]);
+  const [syncLinkStatus, setSyncLinkStatus] = useState('');
   const selectedPlayer = players.find((p) => p.id === selectedId) || null;
 
   useEffect(() => {
@@ -397,6 +398,12 @@ export default function App() {
       // Ignore storage failures and keep the board usable.
     }
   }, [players, ball, selectedId, customLines, customNote]);
+
+  useEffect(() => {
+    if (!syncLinkStatus) return undefined;
+    const timeout = window.setTimeout(() => setSyncLinkStatus(''), 2500);
+    return () => window.clearTimeout(timeout);
+  }, [syncLinkStatus]);
 
   function updateFromPointer(clientX, clientY, targetId) {
     const rect = fieldRef.current?.getBoundingClientRect(); if (!rect) return;
@@ -515,8 +522,10 @@ export default function App() {
     const syncUrl = url.toString();
     try {
       await window.navigator.clipboard.writeText(syncUrl);
+      setSyncLinkStatus('Sync link copied');
     } catch {
       window.prompt('Copy this board link to open on another device:', syncUrl);
+      setSyncLinkStatus('Sync link ready to copy');
     }
   }
 
@@ -619,6 +628,7 @@ export default function App() {
 
   return (
     <div className="app-shell">
+      {syncLinkStatus && <div className="sync-toast" role="status" aria-live="polite">{syncLinkStatus}</div>}
       <button className="menu-toggle" onClick={() => setShowMenu((value) => !value)} aria-expanded={showMenu} aria-controls="app-menu">
         {showMenu ? 'Close menu' : 'Menu'}
       </button>
