@@ -343,6 +343,18 @@ function MovementOverlay({ players, arrows, pendingLine, editingLineId, editingL
         if (editingLineId && arrow.id === editingLineId) return null;
         return (
           <g key={arrow.id || `${arrow.from}-${x2}-${y2}`} opacity={arrow.pending ? 0.84 : 1}>
+            {!arrow.pending && (
+              <path
+                d={path}
+                fill="none"
+                stroke="rgba(255,255,255,0.01)"
+                strokeWidth={9}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                style={{ pointerEvents: 'stroke', cursor: 'grab' }}
+                onPointerDown={(event) => onLinePointerDown?.(event, arrow.id)}
+              />
+            )}
             <path
               d={path}
               fill="none"
@@ -367,12 +379,12 @@ function MovementOverlay({ players, arrows, pendingLine, editingLineId, editingL
                 cx={x2}
                 cy={y2}
                 r={arrow.color === 'ball' ? 2.1 : 1.8}
-                fill={arrow.color === 'ball' ? '#fff1b8' : '#dbeafe'}
-                stroke={stroke}
-                strokeWidth="0.32"
-                onPointerDown={(event) => onLinePointerDown?.(event, arrow.id)}
-                style={{ pointerEvents: 'all', cursor: 'move' }}
-              />
+              fill={arrow.color === 'ball' ? '#fff1b8' : '#dbeafe'}
+              stroke={stroke}
+              strokeWidth="0.32"
+              onPointerDown={(event) => onLinePointerDown?.(event, arrow.id)}
+              style={{ pointerEvents: 'all', cursor: 'grab' }}
+            />
             )}
           </g>
         );
@@ -538,18 +550,6 @@ export default function App() {
       setCustomLines((current) => [...current, { id: `line-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`, from: lineStartId, to: point, color: lineType }]);
       setLineStartId(null);
       setPendingLinePoint(null);
-      return;
-    }
-    if (editingLineId) {
-      setCustomLines((current) => {
-        const before = current.find((line) => line.id === editingLineId);
-        if (!before) return current;
-        const after = { ...before, to: point };
-        setUndoStack((stack) => [...stack, { type: 'move-line', before, after, previousSelectedId: selectedId }]);
-        return current.map((line) => (line.id === editingLineId ? after : line));
-      });
-      setEditingLineId(null);
-      setEditingLinePoint(null);
     }
   }
 
@@ -838,7 +838,7 @@ export default function App() {
 
           <section className="card">
             <h2>Movement tools</h2>
-            <p className="muted">Select a player, then create your own movement line. Drag the end dot on an existing line to move it.</p>
+            <p className="muted">Select a player, then create your own movement line. Drag the line or the end dot after it is placed to adjust it.</p>
             <div className="topbar-actions" style={{ marginTop: '10px' }}>
               <button onClick={() => startLine('us')} disabled={!selectedPlayer || !!lineStartId}>Add player line</button>
               <button onClick={() => startLine('ball')} disabled={!selectedPlayer || !!lineStartId}>Add ball line</button>

@@ -32,6 +32,7 @@ Progress:
 - Added a small confirmation toast for the sync-link copy action so it does not fail silently.
 - Distinct movement paths now render as curved blue player runs with destination dots and straight gold ball travel lines.
 - Existing movement lines can now be moved by dragging the end dot and dropping it at a new point.
+- Existing movement lines can also be grabbed along the line itself, making post-placement adjustments easier on the board.
 
 Notes:
 - Resetting or changing presets clears the undo stack.
@@ -42,3 +43,4 @@ Notes:
 - Backs/Midfield/Forwards labels and midfield dividers now sit outside the clipped oval instead of getting cut off.
 - Player lines are intentionally curved and dashed; ball lines stay thicker and straighter so the two movement types read instantly.
 - Line moves are undoable so an accidental drag can be rolled back with the existing undo control.
+- The line editor now uses a wider invisible hit area so adjustments are easier to grab on desktop and mobile.
