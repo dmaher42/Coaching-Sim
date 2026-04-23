@@ -304,6 +304,25 @@ function PlayerChip({ player, onPointerDown, onDoubleClick, selected, roleHint }
   return <button type="button" className={`player-chip ${selected ? 'selected' : ''} ${player.team}`} style={{ left: `${player.x}%`, top: `${(player.y / FIELD_HEIGHT) * 100}%`, width: `${width}px`, height: `${size}px`, background: TEAM_COLOURS[player.team] }} onPointerDown={onPointerDown} onDoubleClick={onDoubleClick} title={player.name ? `${roleHint} · ${player.name}` : roleHint}>{displayLabel}</button>;
 }
 
+function getArrowPath(from, to, color) {
+  const x1 = from.x;
+  const y1 = (from.y / FIELD_HEIGHT) * 100;
+  const x2 = to.x;
+  const y2 = (to.y / FIELD_HEIGHT) * 100;
+  if (color === 'ball') {
+    return `M ${x1} ${y1} L ${x2} ${y2}`;
+  }
+  const dx = x2 - x1;
+  const dy = y2 - y1;
+  const distance = Math.hypot(dx, dy) || 1;
+  const normalX = -dy / distance;
+  const normalY = dx / distance;
+  const curve = Math.min(7, Math.max(2.5, distance * 0.1));
+  const controlX = (x1 + x2) / 2 + normalX * curve;
+  const controlY = (y1 + y2) / 2 + normalY * curve;
+  return `M ${x1} ${y1} Q ${controlX} ${controlY} ${x2} ${y2}`;
+}
+
 function MovementOverlay({ players, arrows, pendingLine }) {
   if (!arrows.length && !pendingLine) return null;
   const byId = Object.fromEntries(players.map((p) => [p.id, p]));
@@ -313,14 +332,36 @@ function MovementOverlay({ players, arrows, pendingLine }) {
     <svg className="movement-overlay" viewBox="0 0 100 100" preserveAspectRatio="none">
       <defs>
         <marker id="arrow-us" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#60a5fa" /></marker>
-        <marker id="arrow-ball" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#fbbf24" /></marker>
+        <marker id="arrow-ball" markerWidth="9" markerHeight="9" refX="6.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#fbbf24" /></marker>
       </defs>
       {allArrows.map((arrow, index) => {
         const from = resolvePoint(arrow.from); const to = resolvePoint(arrow.to); if (!from || !to) return null;
-        const x1 = from.x; const y1 = (from.y / FIELD_HEIGHT) * 100; const x2 = to.x; const y2 = (to.y / FIELD_HEIGHT) * 100;
         const marker = arrow.color === 'ball' ? 'url(#arrow-ball)' : 'url(#arrow-us)';
         const stroke = arrow.color === 'ball' ? '#fbbf24' : '#60a5fa';
-        return <line key={index} x1={x1} y1={y1} x2={x2} y2={y2} stroke={stroke} strokeWidth="0.7" strokeDasharray={arrow.color === 'ball' ? '0' : '2 1.5'} opacity={arrow.pending ? 0.8 : 1} markerEnd={marker} />;
+        const x2 = to.x; const y2 = (to.y / FIELD_HEIGHT) * 100;
+        const path = getArrowPath(from, to, arrow.color);
+        return (
+          <g key={index} opacity={arrow.pending ? 0.84 : 1}>
+            <path
+              d={path}
+              fill="none"
+              stroke={stroke}
+              strokeWidth={arrow.color === 'ball' ? 1.55 : 1.08}
+              strokeDasharray={arrow.color === 'ball' ? '0' : '2.5 1.35'}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              markerEnd={marker}
+            />
+            <circle
+              cx={x2}
+              cy={y2}
+              r={arrow.color === 'ball' ? 1.55 : 1.15}
+              fill={arrow.color === 'ball' ? '#fbbf24' : '#60a5fa'}
+              stroke={arrow.color === 'ball' ? '#fff1b8' : '#dbeafe'}
+              strokeWidth="0.3"
+            />
+          </g>
+        );
       })}
     </svg>
   );
