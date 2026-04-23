@@ -31,6 +31,7 @@ Progress:
 - Moved the mobile controls panel below the field so it no longer overlays the oval.
 - Added a small confirmation toast for the sync-link copy action so it does not fail silently.
 - Distinct movement paths now render as curved blue player runs with destination dots and straight gold ball travel lines.
+- Existing movement lines can now be moved by dragging the end dot and dropping it at a new point.
 
 Notes:
 - Resetting or changing presets clears the undo stack.
@@ -40,3 +41,4 @@ Notes:
 - Deployment now preserves the legacy hashed JS filename in `dist` for stale browser caches.
 - Backs/Midfield/Forwards labels and midfield dividers now sit outside the clipped oval instead of getting cut off.
 - Player lines are intentionally curved and dashed; ball lines stay thicker and straighter so the two movement types read instantly.
+- Line moves are undoable so an accidental drag can be rolled back with the existing undo control.

@@ -323,7 +323,7 @@ function getArrowPath(from, to, color) {
   return `M ${x1} ${y1} Q ${controlX} ${controlY} ${x2} ${y2}`;
 }
 
-function MovementOverlay({ players, arrows, pendingLine }) {
+function MovementOverlay({ players, arrows, pendingLine, editingLineId, editingLinePoint, onLinePointerDown }) {
   if (!arrows.length && !pendingLine) return null;
   const byId = Object.fromEntries(players.map((p) => [p.id, p]));
   const resolvePoint = (value) => (typeof value === 'string' ? byId[value] : value);
@@ -334,14 +334,15 @@ function MovementOverlay({ players, arrows, pendingLine }) {
         <marker id="arrow-us" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#60a5fa" /></marker>
         <marker id="arrow-ball" markerWidth="9" markerHeight="9" refX="6.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#fbbf24" /></marker>
       </defs>
-      {allArrows.map((arrow, index) => {
+      {allArrows.map((arrow) => {
         const from = resolvePoint(arrow.from); const to = resolvePoint(arrow.to); if (!from || !to) return null;
         const marker = arrow.color === 'ball' ? 'url(#arrow-ball)' : 'url(#arrow-us)';
         const stroke = arrow.color === 'ball' ? '#fbbf24' : '#60a5fa';
         const x2 = to.x; const y2 = (to.y / FIELD_HEIGHT) * 100;
         const path = getArrowPath(from, to, arrow.color);
+        if (editingLineId && arrow.id === editingLineId) return null;
         return (
-          <g key={index} opacity={arrow.pending ? 0.84 : 1}>
+          <g key={arrow.id || `${arrow.from}-${x2}-${y2}`} opacity={arrow.pending ? 0.84 : 1}>
             <path
               d={path}
               fill="none"
@@ -360,9 +361,54 @@ function MovementOverlay({ players, arrows, pendingLine }) {
               stroke={arrow.color === 'ball' ? '#fff1b8' : '#dbeafe'}
               strokeWidth="0.3"
             />
+            {!arrow.pending && (
+              <circle
+                className="line-end-handle"
+                cx={x2}
+                cy={y2}
+                r={arrow.color === 'ball' ? 2.1 : 1.8}
+                fill={arrow.color === 'ball' ? '#fff1b8' : '#dbeafe'}
+                stroke={stroke}
+                strokeWidth="0.32"
+                onPointerDown={(event) => onLinePointerDown?.(event, arrow.id)}
+                style={{ pointerEvents: 'all', cursor: 'move' }}
+              />
+            )}
           </g>
         );
       })}
+      {editingLineId && editingLinePoint && (() => {
+        const line = arrows.find((item) => item.id === editingLineId);
+        const from = line ? resolvePoint(line.from) : null;
+        if (!from) return null;
+        const path = getArrowPath(from, editingLinePoint, line.color);
+        const x2 = editingLinePoint.x;
+        const y2 = (editingLinePoint.y / FIELD_HEIGHT) * 100;
+        const marker = line.color === 'ball' ? 'url(#arrow-ball)' : 'url(#arrow-us)';
+        const stroke = line.color === 'ball' ? '#fbbf24' : '#60a5fa';
+        return (
+          <g opacity="0.95">
+            <path
+              d={path}
+              fill="none"
+              stroke={stroke}
+              strokeWidth={line.color === 'ball' ? 1.55 : 1.08}
+              strokeDasharray={line.color === 'ball' ? '0' : '2.5 1.35'}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              markerEnd={marker}
+            />
+            <circle
+              cx={x2}
+              cy={y2}
+              r={line.color === 'ball' ? 1.55 : 1.15}
+              fill={line.color === 'ball' ? '#fbbf24' : '#60a5fa'}
+              stroke={line.color === 'ball' ? '#fff1b8' : '#dbeafe'}
+              strokeWidth="0.3"
+            />
+          </g>
+        );
+      })()}
     </svg>
   );
 }
@@ -406,6 +452,8 @@ export default function App() {
   const [lineStartId, setLineStartId] = useState(null);
   const [lineType, setLineType] = useState('us');
   const [pendingLinePoint, setPendingLinePoint] = useState(null);
+  const [editingLineId, setEditingLineId] = useState(null);
+  const [editingLinePoint, setEditingLinePoint] = useState(null);
   const [customNote, setCustomNote] = useState(savedBoardState?.customNote ?? DEFAULT_CUSTOM_NOTE);
   const [nameDraft, setNameDraft] = useState('');
   const [nameImportText, setNameImportText] = useState('');
@@ -477,18 +525,32 @@ export default function App() {
   }
 
   function handleFieldPointerMove(event) {
-    if (!lineStartId) return;
     const point = getFieldPoint(event.clientX, event.clientY);
-    if (point) setPendingLinePoint(point);
+    if (!point) return;
+    if (lineStartId) setPendingLinePoint(point);
+    if (editingLineId) setEditingLinePoint(point);
   }
 
   function handleFieldClick(event) {
-    if (!lineStartId) return;
     const point = getFieldPoint(event.clientX, event.clientY);
     if (!point) return;
-    setCustomLines((current) => [...current, { id: `line-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`, from: lineStartId, to: point, color: lineType }]);
-    setLineStartId(null);
-    setPendingLinePoint(null);
+    if (lineStartId) {
+      setCustomLines((current) => [...current, { id: `line-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`, from: lineStartId, to: point, color: lineType }]);
+      setLineStartId(null);
+      setPendingLinePoint(null);
+      return;
+    }
+    if (editingLineId) {
+      setCustomLines((current) => {
+        const before = current.find((line) => line.id === editingLineId);
+        if (!before) return current;
+        const after = { ...before, to: point };
+        setUndoStack((stack) => [...stack, { type: 'move-line', before, after, previousSelectedId: selectedId }]);
+        return current.map((line) => (line.id === editingLineId ? after : line));
+      });
+      setEditingLineId(null);
+      setEditingLinePoint(null);
+    }
   }
 
   function handleFieldDoubleClick(event) {
@@ -531,6 +593,47 @@ export default function App() {
     removePlayerById(selectedPlayer.id);
   }
 
+  function beginLineMove(event, lineId) {
+    if (lineStartId) return;
+    event.preventDefault();
+    event.stopPropagation();
+    const line = customLines.find((item) => item.id === lineId);
+    if (!line) return;
+    const startPoint = typeof line.to === 'string' ? players.find((player) => player.id === line.to) : line.to;
+    if (!startPoint) return;
+    setSelectedId(line.from);
+    setEditingLineId(lineId);
+    setEditingLinePoint({ ...startPoint });
+    let latestPoint = { ...startPoint };
+    const originalLine = { ...line, to: typeof line.to === 'object' ? { ...line.to } : line.to };
+    const move = (moveEvent) => {
+      const point = getFieldPoint(moveEvent.clientX, moveEvent.clientY);
+      if (point) {
+        latestPoint = point;
+        setEditingLinePoint(point);
+      }
+    };
+    const end = () => {
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerup', end);
+      setCustomLines((current) => {
+        const targetLine = current.find((item) => item.id === lineId);
+        if (!targetLine) return current;
+        const same = typeof targetLine.to === 'object'
+          && targetLine.to.x === latestPoint.x
+          && targetLine.to.y === latestPoint.y;
+        if (same) return current;
+        const after = { ...targetLine, to: latestPoint };
+        setUndoStack((stack) => [...stack, { type: 'move-line', before: originalLine, after, previousSelectedId: selectedId }]);
+        return current.map((item) => (item.id === lineId ? after : item));
+      });
+      setEditingLineId(null);
+      setEditingLinePoint(null);
+    };
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', end);
+  }
+
   function removeAllPlayers() {
     if (players.length === 0) return;
     setUndoStack((current) => [
@@ -547,6 +650,8 @@ export default function App() {
     setSelectedId('');
     setLineStartId(null);
     setPendingLinePoint(null);
+    setEditingLineId(null);
+    setEditingLinePoint(null);
   }
 
   async function copySyncLink() {
@@ -594,6 +699,9 @@ export default function App() {
     } else if (lastAction.type === 'add-listed-players') {
       setPlayers((current) => current.filter((player) => !lastAction.players.some((added) => added.id === player.id)));
       setSelectedId(lastAction.previousSelectedId || 'M2');
+    } else if (lastAction.type === 'move-line') {
+      setCustomLines((current) => current.map((line) => (line.id === lastAction.after.id ? lastAction.before : line)));
+      setSelectedId(lastAction.previousSelectedId || 'M2');
     }
     setUndoStack((current) => current.slice(0, -1));
   }
@@ -608,17 +716,28 @@ export default function App() {
   function cancelLine() {
     setLineStartId(null);
     setPendingLinePoint(null);
+    setEditingLineId(null);
+    setEditingLinePoint(null);
   }
 
   function removeLinesForSelected() {
     if (!selectedPlayer) return;
     setCustomLines((current) => current.filter((line) => line.from !== selectedPlayer.id));
+    if (editingLineId) {
+      const line = customLines.find((item) => item.id === editingLineId);
+      if (line && line.from === selectedPlayer.id) {
+        setEditingLineId(null);
+        setEditingLinePoint(null);
+      }
+    }
   }
 
   function clearAllLines() {
     setCustomLines([]);
     setLineStartId(null);
     setPendingLinePoint(null);
+    setEditingLineId(null);
+    setEditingLinePoint(null);
   }
 
   function saveSelectedName() {
@@ -662,6 +781,8 @@ export default function App() {
     setCustomLines([]);
     setLineStartId(null);
     setPendingLinePoint(null);
+    setEditingLineId(null);
+    setEditingLinePoint(null);
     setUndoStack([]);
   }
 
@@ -688,7 +809,14 @@ export default function App() {
               <div className="field-overlay">
                 <FieldMarkings />
               </div>
-              <MovementOverlay players={[...players, { id: 'ball', x: ball.x, y: ball.y }]} arrows={customLines} pendingLine={pendingLine} />
+              <MovementOverlay
+                players={[...players, { id: 'ball', x: ball.x, y: ball.y }]}
+                arrows={customLines}
+                pendingLine={pendingLine}
+                editingLineId={editingLineId}
+                editingLinePoint={editingLinePoint}
+                onLinePointerDown={beginLineMove}
+              />
               {players.map((player) => <PlayerChip key={player.id} player={player} selected={selectedId === player.id} roleHint={roleDescriptions[player.label] || roleDescriptions[player.id] || player.label} onPointerDown={(event) => startDrag(event, player.id)} onDoubleClick={() => removePlayerById(player.id)} />)}
               <PlayerChip player={{ id: 'ball', label: '', team: 'ball', x: ball.x, y: ball.y }} selected={selectedId === 'ball'} roleHint="Ball" onPointerDown={(event) => startDrag(event, 'ball')} />
             </div>
@@ -710,7 +838,7 @@ export default function App() {
 
           <section className="card">
             <h2>Movement tools</h2>
-            <p className="muted">Select a player, then create your own movement line.</p>
+            <p className="muted">Select a player, then create your own movement line. Drag the end dot on an existing line to move it.</p>
             <div className="topbar-actions" style={{ marginTop: '10px' }}>
               <button onClick={() => startLine('us')} disabled={!selectedPlayer || !!lineStartId}>Add player line</button>
               <button onClick={() => startLine('ball')} disabled={!selectedPlayer || !!lineStartId}>Add ball line</button>
